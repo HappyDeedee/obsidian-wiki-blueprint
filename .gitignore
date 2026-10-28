@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+private/
+demo-vault/
+.wiki-state/
+.obsidian/
+*.db
+*.sqlite*
+*.pem
+*.key

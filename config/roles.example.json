@@ -1,0 +1,6 @@
+{
+  "description": "能力合同示例，非可直接加载的产品配置；凭证由部署者秘密管理",
+  "reader": {"read": ["00-Inbox/会议/", "10-Sources/", "20-Wiki/", "30-Projects/", "90-Logs/", "99-System/知识库规则.md"], "write": []},
+  "proposer": {"inherits": "reader", "create_only": ["00-Inbox/问答投稿/", "00-Inbox/待确认答复/"]},
+  "curator": {"inherits": "reader", "transaction_write": ["20-Wiki/", "30-Projects/", "90-Logs/"], "deny_write": ["99-System/", "10-Sources/", "00-Inbox/会议/"]}
+}

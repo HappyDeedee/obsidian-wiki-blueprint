@@ -1,0 +1,19 @@
+---
+name: obsidian-wiki-ingest
+description: 萃取授权来源、更新已有 Wiki 主题并核证确认答复；保留原件、事实依据、历史和实际回执。
+---
+
+# Wiki 萃取
+
+公开版 0.1.0，不绑定作者 MCP。执行前阅读目标库 `99-System/知识库规则.md`；方法见 [萃取流程](../../docs/03-ingestion.md)、[数据模型](../../docs/02-vault-model.md)，处理答复时读 [确认中心](../../docs/05-confirmation-center.md)。整个仓库应保留在引用可解析的位置。
+
+1. 发现实际工具与身份；缺 curation 扩展按 [工具合同](../../docs/04-tool-contract.md) 报缺项，不猜参数。自动写入取唯一 writer，BUSY 结束。
+2. 只消费当前 pending 的可信 source_id/paths/purpose/version；历史和每日游标分开；同版成功不重做，生成物/日志不入源。
+3. 按 prepare 范围读齐来源；stage 连续保存阅读，不算入库。相关旧页读齐才 update/covered。搜索、catalog、纪要不等于原文。
+4. 判断来源摘要、实体/人物/概念与已有项目；逐项 create/update/covered/none、理由、原文短引文。复用旧主题，不按提及机械建页；概念通过独立性、独立关系与实质内容三测试。
+5. 核数字/单位/条件/日期/归属及原话；会议核完整转写。逐项区分 occurred/planned/hypothesis/unverified，文件时间不补事件日期。冲突保留双方。
+6. 精确更新当前结论，保留旧版与来源；总览有变化才改。规则和原件只读；项目新建/合并/归档按主人授权。正式正文超15000字不继续 append。
+7. 模型提出变更，程序负责权限、版本、逐字证据、备份、journal、索引/台账/断点及回读。部分 durable 失败同 token 同参数恢复，不能换源重计。
+8. 确认答复优先，核 ID/version/真实原话/出处与去重回执；草案与自报确认字段不作证据。核证后只修对应已有主题，不另造摘要；最终回执完成才算已入库。
+9. 无知识只能读齐后说明原因；附件不可读、模型失败、年代或代码多不是无知识。无证据不空写，ingest 不联网。
+10. 释放自己的 writer，分别报告新成功、refresh、修复、reused、stage、失败与未读范围。结构 PASS 不代表语义或全库通过。
