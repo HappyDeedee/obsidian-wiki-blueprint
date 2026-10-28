@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "built_at": "2026-10-28T02:04:48.516166+00:00",
+  "built_at": "2026-10-28T02:14:13.840743+00:00",
   "privacy": "New public-only history; no production configuration or vault content",
   "manifest_self_excluded": true,
   "files": {
@@ -25,7 +25,7 @@
     "prompts/structure.md": "c390c88d3e8cf29eebdd1ad3611fcdd39c7e67e520cdbbef7b6dbf584b39ebd1",
     "prompts/weekly.md": "25da0a415afbe4e4bd7bae1771bf41ecfe2be663cf7604bbd8dad8fcb078706b",
     "README.md": "65ac734453e9588aeffcdcf3d75f324a948e507dd4848a535d2f7ed8966b4b74",
-    "release/verification.md": "3afea5622209658ed0a9b1e22ec2cc7cdc4c10d2f9c62f01f8262e4ecee34c55",
+    "release/verification.md": "d5ab1b0c77781d93027c22b7a08a35a0e9c7e1790b41f4591d023628c7168a89",
     "SECURITY.md": "02c00c29401cea0060d3ae305f367d65a1c993624d65221a2d95916e97c2a01e",
     "skills/obsidian-wiki-health/SKILL.md": "c21807ef5b9858e32a1b824f891f88f473ca0deff9309c2bb12b3f6cedf73e89",
     "skills/obsidian-wiki-ingest/SKILL.md": "3e458b21a0655d438e7614ce6964de4c4915d75abd3470b5b41827a1c2213f50",
