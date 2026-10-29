@@ -1,0 +1,15 @@
+# Configure YOUR domain and email in your reverse proxy installation.
+# This is an example for a proxy on the SAME host as the Compose stack.
+wiki.example.invalid {
+    handle_path /sync/* {
+        reverse_proxy localhost:15984
+    }
+    handle /mcp* {
+        reverse_proxy localhost:18787
+    }
+    # Add /kb/, /kbc and /meeting-capture/ only AFTER their authorization tests.
+    # The local reference UI server is loopback-only, not this public backend.
+    handle {
+        respond "Wiki service" 200
+    }
+}

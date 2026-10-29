@@ -1,0 +1,7 @@
+{
+  "mcp_url": "https://wiki.example.invalid/mcp",
+  "mcp_token": "REPLACE_WITH_YOUR_CURATOR_TOKEN",
+  "queue_version": "READ_FROM_YOUR_CURRENT_QUEUE",
+  "total": null,
+  "note": "Source template: derive total and queue_version from your own MCP. Configure your platform actor and routine IDs in the DB adapter; do not copy historical counts."
+}

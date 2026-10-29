@@ -1,0 +1,21 @@
+{
+  "public_base_url": "https://wiki.example.invalid/meeting-capture",
+  "listen_host": "localhost",
+  "listen_port": 18889,
+  "data_dir": "/srv/wiki/meeting/data",
+  "phone_token": "REPLACE_WITH_YOUR_PHONE_TOKEN",
+  "signing_secret": "REPLACE_WITH_YOUR_SIGNING_SECRET",
+  "max_upload_mb": 250,
+  "max_storage_mb": 3072,
+  "max_inbox_audio_mb": 250,
+  "inbox_stability_seconds": 30,
+  "inbox_seed_paths": [],
+  "quota_retry_seconds": 300,
+  "app_key": "REPLACE_WITH_YOUR_TINGWU_APP_KEY",
+  "access_key_id": "REPLACE_WITH_YOUR_ACCESS_KEY_ID",
+  "access_key_secret": "REPLACE_WITH_YOUR_ACCESS_KEY_SECRET",
+  "obsidian_mcp_url": "https://wiki.example.invalid/mcp",
+  "obsidian_mcp_token": "REPLACE_WITH_YOUR_MEETING_ROLE_TOKEN",
+  "synthetic_test_job_ids": [],
+  "tingwu_phrase_id": ""
+}

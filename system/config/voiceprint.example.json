@@ -1,0 +1,13 @@
+{
+  "implementation": "production-reference/voiceprint/vp_extract.py",
+  "model_path": "/opt/kb-voiceprint/models/campplus_zh_16k.onnx",
+  "sample_rate": 16000,
+  "min_segment_seconds": 2.0,
+  "max_segment_seconds": 8.0,
+  "max_segments_per_speaker": 20,
+  "state_directory": "/var/lib/kb-voiceprint",
+  "confirmation_directory": "/var/lib/kb-confirm",
+  "owner_identity": "CONFIGURE_YOUR_ID",
+  "threshold_policy": "Read vp_cluster.py and vp_predict.py; validate on your own authorized data. No universal identity guarantee.",
+  "note": "Configuration contract, not directly loaded by the original script. Adapt constants or environment variables before deployment."
+}

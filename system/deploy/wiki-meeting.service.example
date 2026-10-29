@@ -1,0 +1,20 @@
+[Unit]
+Description=Wiki meeting receiver (configure and validate before enabling)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=wiki
+Group=wiki
+WorkingDirectory=/srv/wiki/meeting
+Environment=PYTHONPATH=/opt/kb-confirm
+ExecStart=/srv/wiki/meeting/.venv/bin/python /srv/wiki/meeting/receiver.py --config /srv/wiki/meeting/config.json
+Restart=on-failure
+RestartSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

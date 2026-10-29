@@ -1,0 +1,4 @@
+{
+  "mode": "local",
+  "note": "Local mode uses the self-hosted confirmation queue and does not call an external cloud. The optional legacy remote-sync branch needs your own separate implementation; it is disabled by default."
+}

@@ -1,13 +1,15 @@
 # 给接手 Agent 的说明
 
-本仓库是公开建库蓝图，不是作者知识库的客户端配置。
+目标：在使用者自己的电脑/服务器建立同一方法的完整系统。读文档、检查环境、执行搭建和验收，不要只返回提示词。用初学者能懂的中文解释。
 
 ## 开始顺序
 
-1. 阅读 `docs/00-agent-bootstrap.md`，明确“本地参考版 / 服务器版”目标。
-2. 阅读 `docs/09-parity-and-limits.md`，列实际工具和未实现组件。
-3. 在全新演示目录运行测试；写入真实库、安装服务、产生模型费用前确认对应范围。
-4. 按任务加载 `skills/obsidian-wiki-{ingest,query,health}/SKILL.md`；行为细节在它们链接的文档。
+1. 先读 `system/README.md`、`system/architecture.md`、`system/STATE.md`、`system/configuration.md`，区分文件同步、模型中继、会议、确认和知识更新链路。
+2. 读 `skills/obsidian-wiki-build/SKILL.md`、`system/INSTALL-CHECKLIST.md` 和功能对照。仅补问会改变部署方案且环境中无法确认的信息；已有授权不重复询问。
+3. 检查实际工具、权限、已有服务，在仓库外新目录按本地手册实际启动 UI 和答复/回执闭环，不只讲做法。
+4. 按 `system/runbooks/02` 至 `08` 分阶段接自己的电脑/手机同步、MCP、会议、声纹、确认和调度。配置在仓库外；身份、域名、任务 ID 和模型用自己的值。
+5. 自定义 MCP 宿主尚需集成，任务见 `system/source-map.md`；原版 MCP 与基础 Compose 并不自动实现 `curation_*`。先实现和测试再宣称可用。
+6. 按任务加载 ingest/query/health Skill，以 `docs/08-acceptance.md` 核原文→知识→回答。交付私有部署清单、已完成/待完成、真实回执和恢复点；每个设备单独验收。
 
 ## 不可跳过的边界
 
@@ -24,6 +26,6 @@
 ## 修改本仓库
 
 只发布明确文件清单，不复制私人工作区、Git 历史、备份、原始笔记或配置。
-改程序后执行 `python -m unittest discover -s tests -v`；改文档/Skill 后执行 `python tools/check_public.py`。
+改程序后执行 `python -m unittest discover -s tests -v` 与 Node 时间规则测试；改文档/Skill 后执行 `python tools/check_public.py`。修改公开文件后更新 manifest，源模板变化更新 source-catalog；发布前另做秘密/私人指纹扫描与 Git 历史检查。
 生产发布需同时核规则、三个 Skill、Bot 指令、任务、看板和权限；分别记录已同步/无需修改/未通过。
 本仓库公共版可以与私人环境使用不同版本，不能为了版本一致覆盖私人设置。

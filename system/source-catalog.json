@@ -1,0 +1,469 @@
+{
+  "schema": 1,
+  "captured_date": "2026-10-29",
+  "sources": [
+    {
+      "path": "system/production-reference/confirm/kb_confirmed_dictionary.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "cde40042bd73ea07a77f14bda8cccdb89f691367416f5f323faf060c04833d42"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_dictionary_cache.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "65d5e103b9ed0698534680c63383209ad9de075b70d547024c244affad29e52d"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_feedback.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "61ca57e9a8ea35e5fd784ed4c064efb1def8b6acbc661bee7e77b5b0f1b93557"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_minutes.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "843bb16a822ed242eb68709243dd759384fe7fb153887a0ebca9b19eb1aeeb19"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_person_attendance.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "c3dfc7b968f782fd977a5b5db3dab9d475105121f9d2715f2a57534b8293635b"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_person_daily.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d594ba8af31dab8c995a29a52a6ed0c5376b5dc9940504f7c5fab748901defa7"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_person_profile.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "a5f07bfaf888e40b82591e81bc112489025424a7425da21a08b6b798ac13aad3"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_person_reconcile.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "bfd9d00b025c5c15a1a1ad9d15c7165c650b2838906fa7d8d77df45d5bff42c3"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_qwrite.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "8432213969026d97ae0158af493e3c418c7f48947f4eaca1398e7c18f6857723"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_receipt_reader.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "ce868e90e2417455c934d24eb35d6ca5c36b4997b865b16c33dfc8d55f8072d2"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_register_read.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "2e3b197481c89194fdfea8c5dcdede69e1606ddcb981be4ae1a444ddc08b0831"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_sync.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "493cefafe8c4153007a5a015ace1c92cafebb28fa08af4f8c0394987b6e0cc47"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_tingwu_phrases.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "3a9689ebfda5e1d2c52d0c86ccf29104bfdd301d98c4844c08b205c0701babb9"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_voice_status_report.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "993955cdb2df41a79cfa9f50aa5aa6b9395adc6b36420911c67cb2ce5471aebf"
+    },
+    {
+      "path": "system/production-reference/confirm/kb_voiceprint_watch.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "94aee455b20f83f8d5d7b4ba0bab8d0d903344666e84c56382b0240c95531e0f"
+    },
+    {
+      "path": "system/production-reference/confirm/make_question_cards.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "5bffacddc186ae4e94efa2f9623f2ddc8cbc9a0687d05d107718752c19ce1d23"
+    },
+    {
+      "path": "system/production-reference/confirm/make_speaker_cards.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "4cebacb005c924125cac960fd83c993030fdd29e6415f8eb001f2b5a957ff1f9"
+    },
+    {
+      "path": "system/production-reference/confirm/server.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "6fc46afb01a3d226877eb8b60d9157930f70df93487c495baab683d8546a85e4"
+    },
+    {
+      "path": "system/production-reference/confirm/vp_predict.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "9d0ed6342f152acb3ec9878a5798ce17e38647fa04cd9580d2a542de36a51c1b"
+    },
+    {
+      "path": "system/production-reference/controller/backup_consistent.py",
+      "kind": "sanitized_local_support_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "21dd64bdb3e459179a4170581502750581837d693c7251e35cc3f9cf5ec4bc03"
+    },
+    {
+      "path": "system/production-reference/controller/curation-controller-db.ts",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "f51dc30a1651479e5864bc043f58a9ed39f721038d29689e43f0f903fe88d467"
+    },
+    {
+      "path": "system/production-reference/controller/curation-controller.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "22693fa250c0d49cec78d6cf911a2e03b1da4f60ffa98bb14865c775921e1cfb"
+    },
+    {
+      "path": "system/production-reference/controller/curation_continuity.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d49c82bd063fb24c057c9cde5d2c97f16bc8991e6049fb0c24838a5435251bb4"
+    },
+    {
+      "path": "system/production-reference/controller/curation_controller_policy.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "8a993b2331f10fcf1807676ae0e1a11ee85601eea01ffed72e552f671c27684d"
+    },
+    {
+      "path": "system/production-reference/controller/curation_relay_recovery.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "104da1f18317f3ecd951b6d6d3e84d5353ace1546fc9db4c14441baab19e6763"
+    },
+    {
+      "path": "system/production-reference/controller/daily_ingestion_audit.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "8b19ac9330b889ca18b1730d88d9bfe91888c00307896d07da2d5f5ae779397b"
+    },
+    {
+      "path": "system/production-reference/controller/kb-confirmation-summary.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "c0776a6d897263605e7b6aa7752d5f85c55e5a354feadb45e3d092de79231102"
+    },
+    {
+      "path": "system/production-reference/controller/kb-daily-delivery.ts",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "1182aa68ad13dbe04fc34fc56151567288732e18982c029f2adf64593ada1009"
+    },
+    {
+      "path": "system/production-reference/controller/kb-daily-report.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "0fd90ad30a9f3813911b1e2e1debd4d4e4f872f74baccdbfeb58a90a6e1fcec4"
+    },
+    {
+      "path": "system/production-reference/controller/kb-monthly-validation-archive.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "569f066de3ea66dbf4c897da57fd7260b3a18bb3aefef770646e77a8c9718070"
+    },
+    {
+      "path": "system/production-reference/controller/relay-probe.ts",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "855a1b23f1f7ec4bcda5367dfafd756e7a0da32456fed7f55025dd2dd750f79b"
+    },
+    {
+      "path": "system/production-reference/controller/vault-client.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "431b7a2f107628b2bfb93969a900639f5fb936427135ae935a36adc51331b9d0"
+    },
+    {
+      "path": "system/production-reference/curation/attachment-bridge.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d2b56ad3d869c6f4c95dcd06535d7a9efb94e5e02793fb89329cd66326025e10"
+    },
+    {
+      "path": "system/production-reference/curation/confirmation-response-policy.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "e33f2c374d8ee8a0a555d855d2ce9bd1752692d78e475ba39426a0c7d4def3f1"
+    },
+    {
+      "path": "system/production-reference/curation/curation-block-diagnostics.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "314d7a09caa99f0a733c4f52e36d5708698a4dc6dc7fbe9216d3876f85858ad5"
+    },
+    {
+      "path": "system/production-reference/curation/curation-navigation-view.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d19f81af9b9fd80ba85e658ffb17b464659f989dd3e368261da033c9dfbca24f"
+    },
+    {
+      "path": "system/production-reference/curation/curation-pipeline.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "477a588b5a8a708a5f48701fc51e21b4689825561e63ceaa5e789780b1bfaec7"
+    },
+    {
+      "path": "system/production-reference/curation/curation-read-budget.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d895e5dba5567d4138ce43767317b94cde81ca9b0e458d5d49b5ef6d5a0342cb"
+    },
+    {
+      "path": "system/production-reference/curation/curation-runtime-proof.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "126928829932ec090239970287be20a56ddcda685fbc9d95848e1d63d42b3c2c"
+    },
+    {
+      "path": "system/production-reference/curation/curation-suspensions.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "22b0450f89bde04325549c597bc8f5fb7a8da4bb77a963efa18770d185024c11"
+    },
+    {
+      "path": "system/production-reference/curation/curation-verifier.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "164ea11f40d9856d221595255ffde749ce0cfc665d1861ade79f8ba921addd7e"
+    },
+    {
+      "path": "system/production-reference/curation/embedded-image-reading.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "817480e2b52aad4405fb173be38560e8515ceb5487c0d4b51e802779e84485ed"
+    },
+    {
+      "path": "system/production-reference/curation/inbox-policy.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "940cd874eed4574edbca60da1f5087dbaad8669c6c7bfe03e91f65abda5859cf"
+    },
+    {
+      "path": "system/production-reference/curation/index-catalog-reconcile.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "21a07ab5344706dcb8580102207e2a7b54b587034c5cf67621497ade87857206"
+    },
+    {
+      "path": "system/production-reference/curation/knowledge-guide-bridge.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "f9fc60844fe20414ba1484eb192f50cdc2f941d66c39ec6c9969fc238d64f155"
+    },
+    {
+      "path": "system/production-reference/curation/knowledge-temporal.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "868fd5c2cdbc2dd46f2091e3edec4a457496f15daa1ba29707181d82ccf4c836"
+    },
+    {
+      "path": "system/production-reference/curation/knowledge-v2.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "ac878638d4f2f676eeb29e086c1efd3a91e3b78d8f475251773f5123a164e518"
+    },
+    {
+      "path": "system/production-reference/curation/mcp-atomic-proposal.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "67c97746695917f3809aed5cc1441d30879b3a7f35248c62e2f45b3656087ab6"
+    },
+    {
+      "path": "system/production-reference/curation/mcp-client-bearer-auth.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "0b0c1f11382024f7f7b074c42e8b9ec82aa30e4376e866f42119c0a2892d2ab0"
+    },
+    {
+      "path": "system/production-reference/curation/mcp-role-policy.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "6668aa174720b2f834d8f0f696f784eaa3898ba3d624b1a5828dfefce640b320"
+    },
+    {
+      "path": "system/production-reference/curation/search-content-cache.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "cdd34db80a54a69f8a244849cb045bc9c7dbe6bf86235cf1ff211165848b42e5"
+    },
+    {
+      "path": "system/production-reference/curation/test-knowledge-temporal.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "cc276a286082282e4b65e8785ef2866233f9e2a70a93dcc144999941a3c6cf5d"
+    },
+    {
+      "path": "system/production-reference/format/format-worker.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "e03f6537905b3b5b2acdf2d21f5614a89a963498aaad4023702abb47b0ef9576"
+    },
+    {
+      "path": "system/production-reference/maintenance/aliases-incremental.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "887af2f8cbe426b0a0b1fa5216f6daba2eb8901d8a8132e13e043a466200f6b4"
+    },
+    {
+      "path": "system/production-reference/maintenance/aliases-refresh.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "bf564ffe32b1b65f2acbd7a8189aa47a378dee3c893c71cedebe445c194d7632"
+    },
+    {
+      "path": "system/production-reference/maintenance/backup_consistent.py",
+      "kind": "sanitized_local_support_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "21dd64bdb3e459179a4170581502750581837d693c7251e35cc3f9cf5ec4bc03"
+    },
+    {
+      "path": "system/production-reference/maintenance/inbox-status-core.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "a845752aa6103032ffdb50831dcb2a1e054aaeec490df3758618ea0ce460d5d8"
+    },
+    {
+      "path": "system/production-reference/maintenance/kb-daily-snapshot.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "3536c5a91c4113096510d75e9e8895b4667c85fd70848d9df0e9f3f55f1386bf"
+    },
+    {
+      "path": "system/production-reference/maintenance/obsidian-structure.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "6142cbc2a906e1689718f518daf7561bd85f51b4f90fa1ceb185f652fba87b70"
+    },
+    {
+      "path": "system/production-reference/maintenance/vault-client.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "c13a2360a8ff0508825b74b22ddf9f90ed9a40d5848acd704393678687c6c2dc"
+    },
+    {
+      "path": "system/production-reference/maintenance/wiki-generated-refresh.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "19c46862789a2e74a2688b26f648892dcaba9eb69efed90848ab55be91f975ed"
+    },
+    {
+      "path": "system/production-reference/maintenance/wiki-generated-views.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "d388912d8820133e2d8de85255466120e0b423cab84dc7643a8c44e8ced6f5f2"
+    },
+    {
+      "path": "system/production-reference/maintenance/wiki-pending-queue.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "18eff718e1efca817f14a8b00fd955f1388df1a0ad9480784b8853b357b098ea"
+    },
+    {
+      "path": "system/production-reference/maintenance/wiki-project-candidates.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "56ddeb7c6c9b9c4d4ea143994afccb93f08ed52cc15c01548a9de7d5ca6e8059"
+    },
+    {
+      "path": "system/production-reference/maintenance/wiki-project-freshness.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "b66c39787fb052af7e655d23a998c46076e51cf054db6de421c18cefc81a5a05"
+    },
+    {
+      "path": "system/production-reference/meeting/inbox_listener.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "6b990cf67158b788d983c0387cbe433b7e480ec3b7c710beea477192b17a6ead"
+    },
+    {
+      "path": "system/production-reference/meeting/mcp_export.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "723a34134f8e7321d9a58d0c7c0e4b15a2f9b4004489aa256d84bd8c592b44ce"
+    },
+    {
+      "path": "system/production-reference/meeting/meeting_analysis.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "cfed2eabce456a122866578f54cb25775325b99724a0dc04230859c436c520e8"
+    },
+    {
+      "path": "system/production-reference/meeting/receiver.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "929c1f12f57aa94920998286a85f1042c7a75148e3ff34b7722eb14a6872e5f1"
+    },
+    {
+      "path": "system/production-reference/meeting/test_receiver.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "cb5c12cfcde2fb81a81811839e16fdb8a3d5b6e96e9a035d4099325ada14e8a7"
+    },
+    {
+      "path": "system/production-reference/meeting-bridge/inbox-audio-bridge.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "06a657f2b42cc94d644f9cffc8c5963b816c3ba1b41c12dc6b174bf647a36c72"
+    },
+    {
+      "path": "system/production-reference/meeting-bridge/meeting-import.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "42983d8e3f2e6e5b42e2e5b0d97d2d4bce3d82296127bd3b4c9b9a2a6f65cb27"
+    },
+    {
+      "path": "system/production-reference/voiceprint/vp_clips.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "ce8dc80267cd698148a5ac5345ef32214146f3076e70f3c4214a740928ed34e0"
+    },
+    {
+      "path": "system/production-reference/voiceprint/vp_cluster.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "34caea8f2acb675a4c9070def095d63864f25396a6dbbc2d418008173ab8a0ac"
+    },
+    {
+      "path": "system/production-reference/voiceprint/vp_extract.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "3f29edb60d3ef2c4a68ffe66f482e039b79ee517ebfa58e8c42448e8838a2c2c"
+    },
+    {
+      "path": "system/production-reference/voiceprint/vp_quotes.py",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "4be9d672cae40430af148c1e4241ffa8b45217b3b02e9fe825cbbf924774d6ae"
+    }
+  ],
+  "source_count": 76,
+  "ui": {
+    "path": "system/confirmation-ui/index.html",
+    "kind": "adapted_running_ui",
+    "public_sha256": "4b05741628ae30bb0615ed76a5247d46d438e12c4e23dafeece34e36d28dc37c"
+  },
+  "scope": "Sanitized and adapted reference. Running sources plus two local backup helpers. Not a clean-environment production deployment certificate."
+}

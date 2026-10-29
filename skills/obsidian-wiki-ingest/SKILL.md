@@ -5,7 +5,7 @@ description: 萃取授权来源、更新已有 Wiki 主题并核证确认答复�
 
 # Wiki 萃取
 
-公开版 0.1.0，不绑定作者 MCP。执行前阅读目标库 `99-System/知识库规则.md`；方法见 [萃取流程](../../docs/03-ingestion.md)、[数据模型](../../docs/02-vault-model.md)，处理答复时读 [确认中心](../../docs/05-confirmation-center.md)。整个仓库应保留在引用可解析的位置。
+公开版 0.2.0，不绑定作者 MCP。执行前阅读目标库 `99-System/知识库规则.md`；方法见 [萃取流程](../../docs/03-ingestion.md)、[数据模型](../../docs/02-vault-model.md)，处理答复时读 [确认中心](../../docs/05-confirmation-center.md)。整个仓库应保留在引用可解析的位置。
 
 1. 发现实际工具与身份；缺 curation 扩展按 [工具合同](../../docs/04-tool-contract.md) 报缺项，不猜参数。自动写入取唯一 writer，BUSY 结束。
 2. 只消费当前 pending 的可信 source_id/paths/purpose/version；历史和每日游标分开；同版成功不重做，生成物/日志不入源。
@@ -17,3 +17,5 @@ description: 萃取授权来源、更新已有 Wiki 主题并核证确认答复�
 8. 确认答复优先，核 ID/version/真实原话/出处与去重回执；草案与自报确认字段不作证据。核证后只修对应已有主题，不另造摘要；最终回执完成才算已入库。
 9. 无知识只能读齐后说明原因；附件不可读、模型失败、年代或代码多不是无知识。无证据不空写，ingest 不联网。
 10. 释放自己的 writer，分别报告新成功、refresh、修复、reused、stage、失败与未读范围。结构 PASS 不代表语义或全库通过。
+
+先读唯一的已确认词典，明确错写只在派生知识中纠正并保留原话；词典不是本场事件证明。人物信息合并到已有实质段落，不以追加链接代替内容更新。服务接线见 [完整系统](../../system/README.md)。

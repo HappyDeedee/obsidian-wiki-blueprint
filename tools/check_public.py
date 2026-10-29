@@ -10,14 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 IGNORED = {".git", "__pycache__"}
 TOP = {"README.md", "AGENTS.md", "LICENSE", "SECURITY.md", "THIRD_PARTY.md",
        ".gitignore", ".gitattributes", ".github", "docs", "skills", "config",
-       "prompts", "vault-template", "tools", "tests", "release", "manifest.json"}
+       "prompts", "vault-template", "tools", "tests", "release", "system", "manifest.json"}
 PATTERNS = {
     "github_token": re.compile(r"(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})"),
     "private_key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "cloud_access_key": re.compile(r"(?:AKIA|ASIA)[A-Z0-9]{16}"),
     "model_key": re.compile(r"\bsk-[A-Za-z0-9_-]{24,}"),
     "bearer_value": re.compile(r"Bearer\s+[A-Za-z0-9_.-]{24,}"),
-    "ipv4": re.compile(r"(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])"),
+    "non_loopback_ipv4": re.compile(r"(?<![\w.])(?!127\.0\.0\.1(?:[^\d.]|$))(?:\d{1,3}\.){3}\d{1,3}(?![\w.])"),
+    "platform_record_id": re.compile(r"\bcm[v-z][a-z0-9]{20,}\b"),
     "private_absolute_path": re.compile(r"(?i)(?:[a-z]:[\\/](?:Users|myproject|obsidian)[\\/]|/(?:home)/[^/\s]+/)"),
     "url_credentials": re.compile(r"https?://[^/\s:@]+:[^/\s@]+@"),
 }

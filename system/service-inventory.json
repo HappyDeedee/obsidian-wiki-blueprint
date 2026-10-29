@@ -1,0 +1,196 @@
+{
+  "observed_date": "2026-10-29",
+  "scope": "Read-only unit field snapshot, not live task/device acceptance",
+  "units": [
+    {
+      "name": "kb-minutes.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-format.timer",
+      "fields": {
+        "OnBootSec": "120"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-daily-snapshot.service",
+      "fields": {
+        "Type": "oneshot",
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "obsidian-structure.timer",
+      "fields": {
+        "OnCalendar": "*-*-* 21:25:00 Asia/Shanghai",
+        "Persistent": "true"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-questions.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-people-daily.timer",
+      "fields": {
+        "OnCalendar": "*-*-* 22:15:00 Asia/Shanghai",
+        "Persistent": "true"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "meeting-capture.service",
+      "fields": {
+        "Type": "simple",
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-voiceprint-watch.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-voiceprint-watch.timer",
+      "fields": {
+        "OnBootSec": "2min"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-confirm-sync.timer",
+      "fields": {
+        "OnBootSec": "2min",
+        "OnUnitActiveSec": "60s"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-confirm.service",
+      "fields": {
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "obsidian-aliases-refresh.timer",
+      "fields": {
+        "OnCalendar": "*-*-* 00,06,12,18:15:00 Asia/Shanghai",
+        "Persistent": "true",
+        "RandomizedDelaySec": "60"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "meeting-inbox-listener.service",
+      "fields": {
+        "Type": "simple",
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-questions.timer",
+      "fields": {
+        "OnCalendar": "Mon *-*-* 09:00:00 Asia/Shanghai",
+        "Persistent": "true"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-format.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-people-daily.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "obsidian-structure.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-confirm-sync.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "obsidian-aliases-refresh.service",
+      "fields": {
+        "Type": "oneshot"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-daily-snapshot.timer",
+      "fields": {
+        "OnCalendar": "*-*-* 21:25:00 Asia/Shanghai",
+        "Persistent": "true"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "kb-minutes.timer",
+      "fields": {
+        "OnBootSec": "3min",
+        "OnUnitActiveSec": "2min"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-daily-report.timer",
+      "fields": {
+        "OnCalendar": "*-*-* 21:30:00 Asia/Shanghai",
+        "Persistent": "true"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-daily-report.service",
+      "fields": {
+        "Type": "oneshot",
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-curation-controller.service",
+      "fields": {
+        "Type": "simple",
+        "Restart": "on-failure"
+      },
+      "enabled_in_new_installation": false
+    },
+    {
+      "name": "personal-kb-deepseek-startup-audit.service",
+      "fields": {
+        "Type": "simple",
+        "Restart": "always"
+      },
+      "enabled_in_new_installation": false
+    }
+  ]
+}
