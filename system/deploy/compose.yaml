@@ -2,6 +2,8 @@ name: wiki-blueprint
 services:
   couchdb:
     image: couchdb@sha256:5fc596110eac7f412173a7d9de14f70aa5d3e816790fb6e70642755d4a4cf464
+    # Skip the root entrypoint's chown of our read-only configuration mount.
+    user: couchdb
     restart: unless-stopped
     environment:
       COUCHDB_USER: ${COUCHDB_ADMIN_USER:?Run tools/deploy.py init first}

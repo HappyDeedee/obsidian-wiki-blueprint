@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "built_at": "2026-10-29T12:05:01.663258+00:00",
+  "built_at": "2026-10-29T12:07:02.759089+00:00",
   "privacy": "Public-only history. Sanitized source references and fictional examples; no private deployment configuration, vault data, or production credentials.",
   "manifest_self_excluded": true,
   "files": {
@@ -42,7 +42,7 @@
     "system/configuration.md": "3bf2bcf5a4dc1fba119f6bc4763138ddbd73bff932d6dca762cc2cb13f386afc",
     "system/confirmation-ui/index.html": "4b05741628ae30bb0615ed76a5247d46d438e12c4e23dafeece34e36d28dc37c",
     "system/deploy/Caddyfile.example": "d39465f5521b9d7a3b575cd2d7f2d1686fa895ab81188766aa6828a63f7fbcfe",
-    "system/deploy/compose.yaml": "e74cfcc6748c749550db1e9a9bbca52fbf64890b98f1c13c0810557a49c5a145",
+    "system/deploy/compose.yaml": "1cf4e8dfb30bc94624b9322596bd94d87466bdd519b0d15a5c141240dd92e938",
     "system/deploy/couchdb.ini": "946590e570b26f187a9550844ab6d16416f62a16ad14f8ed20dab4a0773716c9",
     "system/deploy/wiki-meeting.service.example": "61928149aa261b93ebbf02a88c117ab472a0a921d5cfd7846bfb836942b4b9bb",
     "system/INSTALL-CHECKLIST.md": "5e48d5a63e598a695edb8911e5c7aead8d0ec6ed9df3d3eab81ebfe7bc993d12",
