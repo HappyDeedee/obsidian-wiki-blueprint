@@ -138,7 +138,7 @@
       "path": "system/production-reference/controller/curation_continuity.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "d49c82bd063fb24c057c9cde5d2c97f16bc8991e6049fb0c24838a5435251bb4"
+      "public_sha256": "7c98bcc46234fcb2efbf4604a076fd9a12ff32309ae50419a6ec4e21d3b13dc3"
     },
     {
       "path": "system/production-reference/controller/curation_controller_policy.py",
@@ -150,7 +150,7 @@
       "path": "system/production-reference/controller/curation_relay_recovery.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "104da1f18317f3ecd951b6d6d3e84d5353ace1546fc9db4c14441baab19e6763"
+      "public_sha256": "e705ec573295e55de1f4d71c7546d5fab353372532ccb10a033d4a0d9d6ded92"
     },
     {
       "path": "system/production-reference/controller/daily_ingestion_audit.py",
@@ -246,7 +246,7 @@
       "path": "system/production-reference/curation/curation-verifier.mjs",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "164ea11f40d9856d221595255ffde749ce0cfc665d1861ade79f8ba921addd7e"
+      "public_sha256": "ba2ebbf0b2d2a788a0312d871c8b24de8b20434958274baab7a46c451e45681b"
     },
     {
       "path": "system/production-reference/curation/embedded-image-reading.mjs",

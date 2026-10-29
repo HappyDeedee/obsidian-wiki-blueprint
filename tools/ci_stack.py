@@ -24,6 +24,13 @@ def main():
         def compose(*args):
             p=subprocess.run([*command,*args],capture_output=True,text=True,timeout=300)
             if p.returncode:raise RuntimeError('Owned CI Compose operation failed: '+args[0])
+        def diagnostics():
+            for args in [('ps','--all'),('logs','--no-color','--tail','35')]:
+                p=subprocess.run([*command,*args],capture_output=True,text=True,timeout=30)
+                out=(p.stdout+p.stderr)[-7000:]
+                for value in cfg.values():
+                    if len(value)>=16:out=out.replace(value,'[REDACTED_CI_VALUE]')
+                print(out,flush=True)
         def request(url,method='GET',body=None,auth=None,session=None):
             headers={'Accept':'application/json, text/event-stream','Content-Type':'application/json'}
             if auth:headers['Authorization']=auth
@@ -40,12 +47,14 @@ def main():
             compose('config','--quiet');compose('up','-d','couchdb')
             couch='http://localhost:'+cfg['COUCHDB_LOCAL_PORT']
             admin='Basic '+base64.b64encode((cfg['COUCHDB_ADMIN_USER']+':'+cfg['COUCHDB_ADMIN_PASSWORD']).encode()).decode()
+            last_status=None
             for _ in range(45):
                 try:
-                    if request(couch+'/_up',auth=admin)[0]==200:break
+                    last_status=request(couch+'/_up',auth=admin)[0]
+                    if last_status==200:break
                 except OSError:pass
                 time.sleep(1)
-            else:raise RuntimeError('CI CouchDB readiness failed')
+            else:raise RuntimeError('CI CouchDB readiness failed; last HTTP status '+str(last_status))
             init_db(private)
             assert request(couch+'/wiki/_all_docs')[0] in (401,403),'Anonymous database read accepted'
             user='Basic '+base64.b64encode((cfg['LIVESYNC_USER']+':'+cfg['LIVESYNC_PASSWORD']).encode()).decode()
@@ -73,6 +82,9 @@ def main():
             assert status==200 and ('error' in reply or reply.get('result',{}).get('isError')),'Read-only write accepted'
             print(json.dumps({'status':'PASS','scope':'disposable Docker CouchDB security and stock read-only MCP',
                               'real_phone_sync':False,'e2ee_attachment_roundtrip':False,'model_calls':0}))
+        except Exception:
+            diagnostics()
+            raise
         finally:
             # Only volumes belonging to this random, newly created CI project.
             compose('down','--volumes','--remove-orphans')
