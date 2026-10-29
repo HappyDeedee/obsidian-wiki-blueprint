@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "built_at": "2026-10-29T12:07:02.759089+00:00",
+  "built_at": "2026-10-29T12:10:27.303701+00:00",
   "privacy": "Public-only history. Sanitized source references and fictional examples; no private deployment configuration, vault data, or production credentials.",
   "manifest_self_excluded": true,
   "files": {
@@ -26,7 +26,7 @@
     "prompts/structure.md": "c390c88d3e8cf29eebdd1ad3611fcdd39c7e67e520cdbbef7b6dbf584b39ebd1",
     "prompts/weekly.md": "25da0a415afbe4e4bd7bae1771bf41ecfe2be663cf7604bbd8dad8fcb078706b",
     "README.md": "44fbd807262f1d02cd697aad74093b16f44294c401900030982f2052732ae920",
-    "release/verification.md": "4ae084756c72f79a4573b10f24ef9f6c988f862532347f23fb0b737321740582",
+    "release/verification.md": "af9ce442e289f6e605af814bcb612387af255fe82ab14b1666d8cb38d416a5c5",
     "SECURITY.md": "02c00c29401cea0060d3ae305f367d65a1c993624d65221a2d95916e97c2a01e",
     "skills/obsidian-wiki-build/SKILL.md": "a0191cf1dd302614347969f0c8f449d165d4df16ab1cd922b77ae751cf7a8206",
     "skills/obsidian-wiki-health/SKILL.md": "32d22d0d8561ab6d20a57e774cf528963fbd9378c6e4da6e9eda1202958c3b8c",
@@ -135,7 +135,7 @@
     "system/service-inventory.json": "0aec6c2ef1c33c9b68f655d3e180d5b0415c21655ac056f7a09c4724e580c7eb",
     "system/source-catalog.json": "baa70a45b7fa70b120d77dc6cad7bfe6560a9b3834b92c1b56e28ef69cab8334",
     "system/source-map.md": "a9261ce4bc53795ac97bece8714fb0b3de2663836331aa8aa11cfe6c92f5ead3",
-    "system/STATE.md": "bd6bba2e5bf7fde6ca8d09134a1a075c4505fbc1a515bdb780f26e2054cea77f",
+    "system/STATE.md": "915f022055ecd3581d3bfa74670648dd9b529c74afe7e0e90991e6a5edc1b630",
     "tests/roles.test.mjs": "4fd18a01fb4fcea3dae1f0e84e25f1ea4b99670bee14863aedf1ceddd3435561",
     "tests/test_deploy.py": "680375dc26745430559f228389ce676708edf06d0964e5d96e70f073b3272dbe",
     "tests/test_public_check.py": "64cebfe8acd93c49b63b3e61e73ec6214396a12aaaa087198352eccc434de952",
