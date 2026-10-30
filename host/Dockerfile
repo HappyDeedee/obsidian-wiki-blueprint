@@ -7,6 +7,8 @@ RUN npm ci --ignore-scripts --omit=dev --no-audit --no-fund
 COPY host/ ./
 COPY system/production-reference/ /wiki/system/production-reference/
 COPY system/config/confirmed-dictionary.empty.md /wiki/system/config/confirmed-dictionary.empty.md
+COPY scheduler/ /wiki/scheduler/
+COPY prompts/ /wiki/prompts/
 COPY vault-template/ /wiki/vault-template/
 COPY benchmark/fixtures/ /wiki/benchmark/fixtures/
 # The runtime is loopback-only. Run with host networking and an authenticated

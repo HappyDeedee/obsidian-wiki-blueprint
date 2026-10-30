@@ -17,11 +17,13 @@ import {serve} from './server.mjs';
 const config=await loadConfig();
 if(config.profile!=='disposable-ci'||!/^wiki_ci_[a-f0-9]+$/.test(config.couchdb.database))throw Error('Disposable CI profile/database required');
 const tokens=JSON.parse(await readFile(join(config.paths.state,'ci-tokens.json'),'utf8'));
+const watchdog=setTimeout(()=>{process.stderr.write('Disposable integration watchdog expired; no PASS claimed\n');process.exit(1);},180000);
 const vault=await openVault(config),checks=[];
+const checkpoint=name=>{checks.push(name);process.stdout.write('CI checkpoint '+name+'\n');};
 let server;
 try{
   await bootstrap(vault);
-  assert.equal((await bootstrap(vault)).created,0);checks.push('starter_idempotence');
+  assert.equal((await bootstrap(vault)).created,0);checkpoint('starter_idempotence');
   const sourcePath='00-Inbox/随手放/fictional.md';
   const source='---\nkind: inbox\nprocessed: false\n---\n# Fictional Aurora\n\nThe workshop budget is 120 units.\n';
   await vault.writeNote(sourcePath,source);
@@ -29,7 +31,7 @@ try{
   server=serve(runtime,config);server.listen(config.http.port,config.http.bind);await once(server,'listening');
   const url=`http://${config.http.bind}:${config.http.port}/mcp`;
   async function call(role,method,params={}){
-    const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tokens[role]},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
+    const response=await fetch(url,{signal:AbortSignal.timeout(30000),method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tokens[role]},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
     assert.equal(response.status,200);const body=await response.json();assert(!body.error,JSON.stringify(body));return body.result;
   }
   async function tool(role,name,args){
@@ -41,7 +43,7 @@ try{
   assert.equal((await call('reader','initialize',{protocolVersion:'2024-11-05'})).serverInfo.name,'wiki-blueprint-host');
   assert((await call('curator','tools/list')).tools.filter(t=>t.name.startsWith('curation_')).length===12);
   assert((await call('reader','tools/call',{name:'curation_writer_acquire',arguments:{owner:'forbidden'}})).isError);
-  checks.push('real_http_role_boundary');
+  checkpoint('real_http_role_boundary');
   const lease=await tool('curator','curation_writer_acquire',{owner:'disposable-integration'});
   assert.equal(lease.status,'ACQUIRED');
   const prep=await tool('curator','curation_prepare',{paths:[sourcePath],writer_token:lease.token});
@@ -54,13 +56,13 @@ try{
   const receipt=await tool('curator','curation_commit',proposal);assert.equal(receipt.status,'PASS');
   assert.equal((await tool('curator','curation_commit',proposal)).reused,true);
   assert.equal((await tool('curator','curation_verify',{index:null,source_id:receipt.source_id,operation:'ingest',commit_key:receipt.commit_key,verify_saved:true})).status,'PASS');
-  assert.equal(await vault.readNote(sourcePath),source);checks.push('encrypted_source_commit_verify_duplicate_original_preserved');
+  assert.equal(await vault.readNote(sourcePath),source);checkpoint('encrypted_source_commit_verify_duplicate_original_preserved');
   const imageFile=new URL('../benchmark/fixtures/sample.png',import.meta.url),imagePath='00-Inbox/随手放/fictional.png';
   const imageBytes=await readFile(imageFile);
   assert(await vault.manipulator.put(imagePath,await openAsBlob(imageFile),{ctime:Date.now(),mtime:Date.now(),size:imageBytes.length}));
   assert.equal((await readAttachment(vault,imagePath)).sha256,createHash('sha256').update(imageBytes).digest('hex'));
   const image=await call('reader','tools/call',{name:'read_image',arguments:{path:imagePath}});
-  assert(!image.isError);assert(image.content.some(c=>c.type==='image'&&c.mimeType==='image/png'));checks.push('encrypted_binary_image_readback');
+  assert(!image.isError);assert(image.content.some(c=>c.type==='image'&&c.mimeType==='image/png'));checkpoint('encrypted_binary_image_readback');
   await mkdir(config.paths.meeting_data,{recursive:true});
   const audioFile=new URL('../benchmark/fixtures/synthetic-tone.wav',import.meta.url),bytes=await readFile(audioFile),job=createHash('sha256').update(bytes).digest('hex');
   await copyFile(audioFile,join(config.paths.meeting_data,job+'.wav'));
@@ -71,16 +73,20 @@ try{
   const imported=await tool('meeting','import_meeting',{job_id:job});assert.equal(imported.saved,true);assert.equal(imported.audio_sha256,job);
   assert.equal((await tool('meeting','import_meeting',{job_id:job})).note_path,imported.note_path);
   assert.equal(createHash('sha256').update(await readFile(join(config.paths.meeting_data,job+'.wav'))).digest('hex'),job);
-  checks.push('real_meeting_import_replayed_transcript_source_preserved');
+  checkpoint('real_meeting_import_replayed_transcript_source_preserved');
   await tool('curator','curation_writer_release',{token:lease.token});
   await new Promise(resolve=>server.close(resolve));server=null;
   const recreated=await createRuntime(config,vault);
   const who=await recreated.identity('Bearer '+tokens.curator);
   assert.equal((await recreated.call(who,'curation_status',{})).successes,1);
   assert.equal((await recreated.call(who,'curation_verify',{index:null,source_id:receipt.source_id,operation:'ingest',commit_key:receipt.commit_key,verify_saved:true})).status,'PASS');
-  checks.push('runtime_recreation_persistence');
+  checkpoint('runtime_recreation_persistence');
   console.log(JSON.stringify({status:'PASS',scope:'Real CouchDB, upstream Vault and HTTP host; NOT full install or device acceptance',checks,model_calls:0,cloud_transcription:'synthetic replay, not live ASR',production_compared:false}));
 }finally{
   if(server)await new Promise(resolve=>server.close(resolve));
-  await vault.close();
+  await Promise.race([vault.close(),new Promise(resolve=>setTimeout(resolve,5000))]);
+  clearTimeout(watchdog);
 }
+// Upstream background timers can outlive close; all writes/readbacks above were awaited.
+process.exit(0);
+

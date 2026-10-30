@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 IGNORED = {".git", "__pycache__", "node_modules"}
 TOP = {"README.md", "AGENTS.md", "LICENSE", "SECURITY.md", "THIRD_PARTY.md",
        ".gitignore", ".gitattributes", ".dockerignore", ".github", "docs", "skills", "config",
-       "prompts", "vault-template", "tools", "tests", "release", "system", "manifest.json", "host", "benchmark", "scripts", "install.sh"}
+       "prompts", "vault-template", "tools", "tests", "release", "system", "manifest.json", "host", "benchmark", "scripts", "install.sh", "scheduler"}
 PATTERNS = {
     "github_token": re.compile(r"(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})"),
     "private_key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),

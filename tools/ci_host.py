@@ -38,7 +38,13 @@ def main():
                 if isinstance(value,str) and len(value)>=12:text=text.replace(value,'[REDACTED_CI_VALUE]')
             return text
         def run(args,timeout=600):
-            p=subprocess.run(args,capture_output=True,text=True,timeout=timeout)
+            try:
+                p=subprocess.run(args,capture_output=True,text=True,timeout=timeout)
+            except subprocess.TimeoutExpired as error:
+                out=(error.stdout or b'')+(error.stderr or b'')
+                if isinstance(out,bytes):out=out.decode('utf-8','replace')
+                print(redact(out[-12000:]),flush=True)
+                raise RuntimeError('Owned CI operation timed out; see last real checkpoint') from None
             if p.returncode:
                 print(redact((p.stdout+p.stderr)[-12000:]),flush=True)
                 raise RuntimeError('Owned CI operation failed, exit '+str(p.returncode))
