@@ -1,16 +1,14 @@
 /** Only this adapter knows the pinned upstream bundle layout. Workers use this public interface. */
 import {readdir} from 'node:fs/promises';
-import {createRequire} from 'node:module';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {normalizedPath} from '../system/production-reference/curation/mcp-role-policy.mjs';
 
-const loaders=new WeakMap();
 export async function upstreamModule(vault,name){
   if(!['octagonal-wheels/binary','octagonal-wheels/encryption/encryption'].includes(name))throw Error('Unapproved adapter dependency');
-  const loader=loaders.get(vault);if(!loader)throw Error('Upstream dependency resolver unavailable');
-  return import(pathToFileURL(loader.resolve(name)).href);
+  // ESM-only exports: use the same pinned public package, not CJS resolution.
+  return import(name);
 }
 export function checkedPath(path){
   normalizedPath(path);
@@ -25,7 +23,6 @@ export async function openVault(config) {
   const vault=new Vault({couchdbUrl:c.url,couchdbUser:c.user,couchdbPassword:c.password,database:c.database,
     passphrase:c.passphrase,obfuscatePaths:c.obfuscate_paths===true,idDerivationKey:c.id_derivation_key,
     caseSensitive:c.case_sensitive===true});
-  loaders.set(vault,createRequire(join(config.paths.upstream_dist,'../package.json')));
   // Upstream path logs must not become public service logs.
   const log=console.log,warn=console.warn;
   try{console.log=()=>{};console.warn=()=>{};await vault.init();}finally{console.log=log;console.warn=warn;}
