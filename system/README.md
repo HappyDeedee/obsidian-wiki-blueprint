@@ -34,3 +34,7 @@
 - [tools/deploy.py](../tools/deploy.py)：为使用者生成新的私有凭证；不启动服务，不读取作者配置。
 
 实际测试和缺项见 [STATE.md](STATE.md) 与 [发布验收](../release/verification.md)。
+
+## 服务配置补充
+
+阅读[配置、提示词、热词、附件转换与初始化说明](../docs/12-service-setup.md)。本次补充可执行离线配置工具与三个缺失依赖入口；完整生产宿主、认证适配和真设备验收仍须逐项完成。

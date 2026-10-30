@@ -29,3 +29,7 @@
 改程序后执行 `python -m unittest discover -s tests -v` 与 Node 时间规则测试；改文档/Skill 后执行 `python tools/check_public.py`。修改公开文件后更新 manifest，源模板变化更新 source-catalog；发布前另做秘密/私人指纹扫描与 Git 历史检查。
 生产发布需同时核规则、三个 Skill、Bot 指令、任务、看板和权限；分别记录已同步/无需修改/未通过。
 本仓库公共版可以与私人环境使用不同版本，不能为了版本一致覆盖私人设置。
+
+## 完整搭建与服务配置
+
+接手 AI 必须阅读[服务配置与搭建总入口](docs/12-service-setup.md)，再按其中链接配置听悟、热词、附件转换、知识库结构及手机入口。`tools/services.py` 提供私有配置初始化和离线核验；它不会安装自定义 MCP 宿主，也不会发起云端付费任务。

@@ -1,0 +1,2 @@
+# Pin the version exercised by this distribution. Install in a dedicated venv.
+markitdown[pdf,docx,pptx,xlsx,xls]==0.1.6

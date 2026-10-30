@@ -49,6 +49,7 @@ python tools/wiki.py init --vault "../my-wiki-demo"
 python tools/demo.py --vault "../my-wiki-demo"
 python tools/wiki.py query --vault "../my-wiki-demo" --text "演示项目"
 python tools/wiki.py health --vault "../my-wiki-demo"
+python -m pip install "markitdown==0.1.6"
 python -m unittest discover -s tests -v
 python tools/check_public.py
 ```
@@ -79,6 +80,10 @@ python tools/check_public.py
 
 ## 状态与许可
 
-公开版本：`0.2.0`。本地网页仅允许回环地址，文件 Wiki 不支持跨同步并发锁；同步服务单独部署，生产扩展需按源码地图适配。发布验收见 [release/verification.md](release/verification.md)。示例不包含真实人物、业务资料或音频。
+公开版本：`0.2.1`。本地网页仅允许回环地址，文件 Wiki 不支持跨同步并发锁；同步服务单独部署，生产扩展需按源码地图适配。发布验收见 [release/verification.md](release/verification.md)。示例不包含真实人物、业务资料或音频。
 
 本仓库原创公开内容按 MIT 发布；第三方依赖保留各自许可，不把上游源码或服务打包冒充本仓库能力。
+
+## 完整搭建与服务配置
+
+接手 AI 必须阅读[服务配置与搭建总入口](docs/12-service-setup.md)，再按其中链接配置听悟、热词、附件转换、知识库结构及手机入口。`tools/services.py` 提供私有配置初始化和离线核验；它不会安装自定义 MCP 宿主，也不会发起云端付费任务。

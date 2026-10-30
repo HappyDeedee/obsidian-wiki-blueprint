@@ -1,10 +1,10 @@
 # 工具来源与许可
 
-核对日期：2026-10-29。下列是上游软件/方法。公开包增加自定义业务源码模板，但不附第三方 node_modules、模型或插件二进制。安装前从官方 README 核当前平台、版本、参数与许可，再固定实际测试的 commit；不使用浮动最新版作为已验收证据。
+核对日期：2026-10-30。下列是上游软件/方法。公开包增加自定义业务源码模板，但不附第三方 node_modules、模型或插件二进制。安装前从官方 README 核当前平台、版本、参数与许可，再固定实际测试的 commit；不使用浮动最新版作为已验收证据。
 
 | 组件 | 作用 | 必需程度 |
 |---|---|---|
-| Python 3.11+（python.org） | 本仓库参考程序 | 本地示例必需，无 pip 依赖 |
+| Python 3.11+（python.org） | 本仓库参考程序 | 本地 Wiki/UI 示例无 pip 依赖；完整测试另装 MarkItDown |
 | Obsidian（obsidian.md） | Markdown 查看/编辑 | 方法可纯文件使用；Obsidian体验需要 |
 | 自己的 Agent | 阅读、语义萃取、查询回答与内容巡检 | 真正 AI 工作流必需；demo 无需 |
 | `SamurAIGPT/llm-wiki-agent` | 来源→实体/概念→关联 Wiki 的方法参考 | 方法来源，不是运行依赖 |
@@ -27,3 +27,5 @@
 Self-hosted LiveSync 按其 MIT 许可使用；Apache CouchDB 按 Apache-2.0 使用；Caddy 按 Apache-2.0 使用。安装者从各项目官方发布核许可和版本，保留必要通知。Obsidian 本体遵守其官方许可，不随本仓库重新分发。
 
 声纹依赖 numpy、PyAV、sherpa-onnx，会议依赖阿里云 SDK/听悟服务，格式转换可用 MarkItDown。模型权重与样本单独获取并核许可；软件许可不代表获得处理他人声音的授权。版本锁和模型 SHA-256 由搭建者写进自己的私有部署清单。
+
+本次附件转换验证选用 MarkItDown `0.1.6`，独立依赖文件固定正文转换 extras；转换包装器是本仓库代码，MarkItDown 本体仍按其 MIT 许可单独安装。新增运行测试实际调用该版本转换 HTML 样例，不将单个样例成功扩大为全格式/OCR验收。

@@ -53,7 +53,7 @@ def atomic_json(path, value):
     os.replace(temporary, path)
 
 
-def normalize(results, version=1):
+def normalize(results, version=1, dictionary_cache_path=None):
     transcription = results['Transcription'].get('Transcription', {})
     if not isinstance(transcription.get('Paragraphs'), list):
         raise ValueError('result_schema_unknown')
@@ -71,7 +71,7 @@ def normalize(results, version=1):
     if (not isinstance(summary, dict)
             or not isinstance(assistance, dict) or not isinstance(assistance.get('Actions', []), list)):
         raise ValueError('result_schema_unknown')
-    enhanced = normalize_enhanced(results, version)
+    enhanced = normalize_enhanced(results, version, dictionary_cache_path)
     if 'ParagraphSummary' in summary:
         paragraph_summary = summary['ParagraphSummary']
     elif version >= 2 and enhanced.get('minutes'):
@@ -107,7 +107,7 @@ class Tingwu:
         from kb_dictionary_cache import read
         from kb_tingwu_phrases import PhraseManager
         cached = read(self.dictionary_cache_path)
-        if not cached:return analysis_parameters()
+        if not cached:return analysis_parameters(dictionary={}, phrase_state={})
         def load():
             if not self.phrase_state_path.exists():return {}
             return json.loads(self.phrase_state_path.read_text(encoding='utf-8'))
@@ -153,7 +153,9 @@ class Tingwu:
         return self.request('GET', '/openapi/tingwu/v2/tasks/' + urllib.parse.quote(task_id, safe=''))
 
     def rerun(self, task_id):
-        parameters = analysis_parameters()
+        from kb_dictionary_cache import read
+        cached = read(self.dictionary_cache_path)
+        parameters = analysis_parameters(dictionary=cached['dictionary'] if cached else {}, phrase_state={})
         # Tingwu cannot rerun ASR or change diarization on an existing task.
         parameters.pop('Transcription', None)
         return self.request('PUT', '/openapi/tingwu/v2/tasks', {
@@ -465,7 +467,7 @@ class Capture:
                         else:
                             results[key] = provider.fetch_result(urls[key])
                             atomic_json(path, results[key])
-                    result = normalize(results, row['analysis_version'])
+                    result = normalize(results, row['analysis_version'], self.root / 'confirmed-dictionary.cache.json')
                     result.update({'job_id': job_id, 'task_id': row['task_id']})
                     atomic_json(self.root / f'{job_id}.result.json', result)
                     self.update(job_id, state='completed', error='')

@@ -88,7 +88,7 @@ def _mindmap(nodes, depth=0, count=None):
     return nodes
 
 
-def normalize_enhanced(results, version):
+def normalize_enhanced(results, version, dictionary_cache_path=None):
     summary = results['Summarization']['Summarization']
     speakers = _list(summary.get('ConversationalSummary', []))
     for speaker in speakers:
@@ -170,7 +170,7 @@ def normalize_enhanced(results, version):
     value['minutes'] = minutes
     if entry.get('Truncated') is True:
         value['analysis_warnings'].append('听悟自定义纪要的输入被截断，仅覆盖部分转写；请结合完整录音核对。')
-    cached = read_dictionary_cache()
+    cached = read_dictionary_cache(dictionary_cache_path) if dictionary_cache_path is not None else read_dictionary_cache()
     if cached:
         value = normalize_derived(value, cached['dictionary'])
     title = value.get('minutes', {}).get('title', '')

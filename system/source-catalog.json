@@ -309,16 +309,39 @@
       "public_sha256": "cdd34db80a54a69f8a244849cb045bc9c7dbe6bf86235cf1ff211165848b42e5"
     },
     {
+      "path": "system/production-reference/curation/temporal-inspect.mjs",
+      "kind": "sanitized_running_source",
+      "status": "requires_deployment_configuration",
+      "public_sha256": "7ff0844b0943a6fb1ade1b98871771731188680a04b0957b3571835247ca3b78",
+      "packaged_date": "2026-10-30"
+    },
+    {
       "path": "system/production-reference/curation/test-knowledge-temporal.mjs",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
       "public_sha256": "cc276a286082282e4b65e8785ef2866233f9e2a70a93dcc144999941a3c6cf5d"
     },
     {
+      "path": "system/production-reference/format/format-convert.py",
+      "kind": "sanitized_local_converter",
+      "status": "requires_deployment_configuration",
+      "public_sha256": "8746e888177267043ed62a41fb816f99c8e03150c840f3a98f9db159f513ce2b",
+      "packaged_date": "2026-10-30",
+      "public_adaptations": "2026-10-30: import-safe CLI, local-only conversion, exclusive output creation, empty/oversized output rejection."
+    },
+    {
       "path": "system/production-reference/format/format-worker.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
       "public_sha256": "e03f6537905b3b5b2acdf2d21f5614a89a963498aaad4023702abb47b0ef9576"
+    },
+    {
+      "path": "system/production-reference/format/inbox-status.py",
+      "kind": "sanitized_local_deployment_source",
+      "status": "requires_deployment_configuration",
+      "public_sha256": "0cc609281e2bcc84e7095e625dd88b68767cef2948b804b5faa70e3564947d75",
+      "packaged_date": "2026-10-30",
+      "public_adaptations": "2026-10-30: own WIKI_STACK_ROOT/WIKI_MCP_URL configuration; no hardcoded runtime endpoint."
     },
     {
       "path": "system/production-reference/maintenance/aliases-incremental.py",
@@ -393,6 +416,18 @@
       "public_sha256": "b66c39787fb052af7e655d23a998c46076e51cf054db6de421c18cefc81a5a05"
     },
     {
+      "path": "system/production-reference/meeting-bridge/inbox-audio-bridge.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "06a657f2b42cc94d644f9cffc8c5963b816c3ba1b41c12dc6b174bf647a36c72"
+    },
+    {
+      "path": "system/production-reference/meeting-bridge/meeting-import.mjs",
+      "kind": "sanitized_running_source",
+      "status": "adapted_reference_requires_integration_and_configuration",
+      "public_sha256": "42983d8e3f2e6e5b42e2e5b0d97d2d4bce3d82296127bd3b4c9b9a2a6f65cb27"
+    },
+    {
       "path": "system/production-reference/meeting/inbox_listener.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
@@ -408,31 +443,21 @@
       "path": "system/production-reference/meeting/meeting_analysis.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "cfed2eabce456a122866578f54cb25775325b99724a0dc04230859c436c520e8"
+      "public_sha256": "a44992ea04c1822ba0ae892523319b1c19ec5afce0ab2b26273ce80069e39239",
+      "public_adaptations": "2026-10-30: bind dictionary cache reads to the current installation data directory; preserve offline parameter contract."
     },
     {
       "path": "system/production-reference/meeting/receiver.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "929c1f12f57aa94920998286a85f1042c7a75148e3ff34b7722eb14a6872e5f1"
+      "public_sha256": "88ee8723c36db3a676f047214828f3efc8256d4ca7a54b500b65b3a26d48ba88",
+      "public_adaptations": "2026-10-30: bind dictionary cache reads to the current installation data directory; preserve offline parameter contract."
     },
     {
       "path": "system/production-reference/meeting/test_receiver.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
       "public_sha256": "cb5c12cfcde2fb81a81811839e16fdb8a3d5b6e96e9a035d4099325ada14e8a7"
-    },
-    {
-      "path": "system/production-reference/meeting-bridge/inbox-audio-bridge.mjs",
-      "kind": "sanitized_running_source",
-      "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "06a657f2b42cc94d644f9cffc8c5963b816c3ba1b41c12dc6b174bf647a36c72"
-    },
-    {
-      "path": "system/production-reference/meeting-bridge/meeting-import.mjs",
-      "kind": "sanitized_running_source",
-      "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "42983d8e3f2e6e5b42e2e5b0d97d2d4bce3d82296127bd3b4c9b9a2a6f65cb27"
     },
     {
       "path": "system/production-reference/voiceprint/vp_clips.py",

@@ -2,7 +2,7 @@
 
 ## 1. 先选择规模
 
-**A：本机试用**：Python 3.11+、Obsidian（查看 Markdown）、能读文件的 Agent。仓库参考工具不需要第三方 Python 包。先在全新目录跑通虚构示例。关闭电脑后任务不会继续运行。
+**A：本机试用**：Python 3.11+、Obsidian（查看 Markdown）、能读文件的 Agent。本地 Wiki/UI 参考工具不需要第三方 Python 包；附件转换和完整测试还需下列固定版本 MarkItDown。先在全新目录跑通虚构示例。关闭电脑后任务不会继续运行。
 
 **B：服务器长期运行**：A 的方法，加自己的 Markdown 存储或 LiveSync/CouchDB、MCP 服务、受限身份、持久任务控制器、备份和确认中心。服务器可以独立工作，但手机/Web 能否使用仍须实测。
 
@@ -16,6 +16,7 @@ Git 用于保存方法和代码；**公开 Git 仓库不是私人知识库同步
 
 ```powershell
 python --version
+python -m pip install "markitdown==0.1.6"
 python -m unittest discover -s tests -v
 python tools/check_public.py
 python tools/wiki.py init --vault "../my-wiki-demo"
@@ -24,9 +25,9 @@ python tools/demo.py --vault "../my-wiki-demo"
 
 `init` 只接受空目录；发生失败先看具体错误，不反复重建。成功后在 Obsidian 选择“打开已有文件夹作为库”，选择刚创建的 `my-wiki-demo`。不需要安装社区插件才能查看本地参考结果。
 
-## 3. 装入三个 Skill
+## 3. 装入四个 Skill
 
-把 `skills/` 下三个文件夹复制到目标 Agent 自己支持的技能目录。它们依赖仓库的 `docs/`，**复制时还需把仓库 docs 放到技能目录的 `../../docs/`，或者保留整个仓库并按绝对路径加载 Skill**。最简单的方法是让 Agent 直接读取完整克隆中的 SKILL.md；不要只复制一个正文而丢掉引用。
+让 Agent 直接读取完整克隆中的四个 `skills/*/SKILL.md`。它们依赖仓库的 `docs/`、`system/` 与 `tools/`；保留整个目录才是完整安装方式。不要只复制 Skill 文件夹而丢掉它引用的搭建文档、配置模板和程序。
 
 已有同名技能先另存备份并对比；不要覆盖私人库的现行生产技能。目标 Agent 能读 SKILL.md 不代表已经能读 Obsidian。
 

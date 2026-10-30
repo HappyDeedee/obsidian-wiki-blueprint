@@ -27,7 +27,7 @@
 | 同目录 | `curation-controller-db.ts` | 直接依赖 Rakazo 的 Prisma/job/tenant 接口；必须固定自己的平台版本与 actor/routine ID |
 | 同目录 | `kb-daily-report.py`、`daily_ingestion_audit.py` | 实际任务/回执 → 日报与超时报警；不是 `completed` 状态即成功 |
 | `production-reference/maintenance/` | `obsidian-structure.py`、`wiki-generated-refresh.py` | MCP、只读扫描、派生视图、空闲写锁；程序报告不等于模型语义巡检 |
-| `production-reference/format/` | `format-worker.py` | 自己的配置、附件/格式提取适配；不要自动将所有二进制当笔记正文 |
+| `production-reference/format/` | `format-worker.py`、`format-convert.py`、`inbox-status.py` | 固定 MarkItDown 环境、受限附件桥、隔离运行与自己状态；文字提取不是全部内容已读 |
 
 ## 很关键的缺口：运行宿主
 
@@ -46,10 +46,10 @@
 
 ## 为什么不直接运行所有参考文件
 
-部分文件含 Linux 默认路径、平台内部 API、模块导入时行为和历史兼容逻辑。新的使用者没有作者同名账号、相同队列或已有状态。先适配配置与数据合同，再按服务单独启动。不要把 76 个文件循环执行；不要将代码模板放进真实知识库让它们变成资料源。
+部分文件含 Linux 默认路径、平台内部 API、模块导入时行为和历史兼容逻辑。新的使用者没有作者同名账号、相同队列或已有状态。先适配配置与数据合同，再按服务单独启动。不要把源码清单中的所有文件循环执行；不要将代码模板放进真实知识库让它们变成资料源。
 
 ## 本地辅助来源与可选依赖
 
-两个 `backup_consistent.py` 来自作者本地维护代码，作为控制器和维护脚本的必要辅助模块；其余 74 份业务源码从运行服务只读采集后脱敏、适配。`source-catalog.json` 分别标记来源类型与公开字节 hash。原文件名保留便于追踪，不代表可以无配置直接运行。
+初版的两个 `backup_consistent.py` 来自本地维护代码，其余 74 份来自运行服务采集；本次另补入转换入口、未整理视图入口和时间巡检入口。`source-catalog.json` 分别标记来源类型与公开字节 hash。原文件名保留便于追踪，不代表可以无配置直接运行。
 
 平台特定的可选模型观测模块和历史云函数没有随仓库分发；按各模块的显式降级/关闭分支运行。若启用相应平台功能，应在自己的构建中补上依赖并独立验收，不得连到作者平台或沿用历史事故 ID。

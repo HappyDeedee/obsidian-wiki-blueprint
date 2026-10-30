@@ -1,0 +1,15 @@
+{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "tingwu:CreateTranscriptionPhrases",
+        "tingwu:UpdateTranscriptionPhrases",
+        "tingwu:ListTranscriptionPhrases",
+        "tingwu:GetTranscriptionPhrases"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
