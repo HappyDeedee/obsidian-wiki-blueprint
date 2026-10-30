@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "fictional": true,
+  "speech": false,
+  "audio_note": "Synthetic 440 Hz tone; verifies binary transport only, never transcription quality.",
+  "files": {
+    "sample.docx": "371b05039c8f529c26736514663a4e873c9021bf93ffc5f4206a48372852254b",
+    "sample.pdf": "dcb4210f8f0d46f836abd5f0bc620815b0894906c5be74e3a5b42608d15282da",
+    "sample.png": "7d42e2b3ed89daf168caecc82903ca33fdcc65be8abb7a64bed0013e7e0fbed8",
+    "sample.pptx": "df1c45262186a520e4aa5350d98f3f4e160d77900344d0aad366c6e6e43a9b84",
+    "sample.xlsx": "c5a868cd51c390f4f57b25795ccfaa8249e233efb28c655516c1839bcaa74c96",
+    "synthetic-tone.wav": "c4a948f325d39c925685c2f91f30453f46903bf6e1826eed691cbd8f86643061"
+  }
+}

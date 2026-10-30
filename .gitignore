@@ -11,3 +11,4 @@ demo-vault/
 *.sqlite*
 *.pem
 *.key
+node_modules/

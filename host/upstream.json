@@ -1,0 +1,8 @@
+{
+  "repository": "es617/obsidian-sync-mcp",
+  "commit": "4759a8f123ac0dfafa88229821060fd7df566abc",
+  "tag": "v0.9.0",
+  "license": "MIT",
+  "image": "ghcr.io/es617/obsidian-sync-mcp@sha256:d8d71417ed3beea16573bcef581d096fd17903da514b42b2020cf358a98b6ce0",
+  "lock_sha256": "c7a0b0f84bc946e2f443300afab4add21c5f57c0bbc00b2136708a222a6a09c8"
+}

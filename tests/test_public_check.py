@@ -29,6 +29,19 @@ class PublicCheckTests(unittest.TestCase):
             (root / "credentials.json").write_text("{}", encoding="utf-8")
             self.assertIn("not_in_public_allowlist", [i["issue"] for i in inspect(root)["issues"]])
 
+    def test_arbitrary_binary_is_rejected_even_under_fixture_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'benchmark/fixtures').mkdir(parents=True)
+            (root/'benchmark/fixtures/secret.wav').write_bytes(b'not a public fixture')
+            result=inspect(root)
+            self.assertIn('private_or_binary_artifact',[i['issue'] for i in result['issues']])
+
+    def test_dependency_directory_is_not_scanned_or_manifested(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'host/node_modules/package').mkdir(parents=True)
+            (root/'host/node_modules/package/private.key').write_text('generated dependency',encoding='utf-8')
+            self.assertEqual(inspect(root)['checked_files'],0)
+
 
 if __name__ == "__main__":
     unittest.main()

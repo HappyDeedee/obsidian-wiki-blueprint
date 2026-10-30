@@ -16,7 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: python -m pip install "markitdown==0.1.6"
+      - run: python -m pip install "markitdown[pdf,docx,pptx,xlsx,xls]==0.1.6"
+      - run: npm ci --prefix host --ignore-scripts --no-audit --no-fund
+      - run: npm test --prefix host
       - run: python -m unittest discover -s tests -v
       - run: python -m unittest discover -s system/production-reference/meeting -p test_receiver.py -v
       - run: node --test system/production-reference/curation/test-knowledge-temporal.mjs tests/roles.test.mjs
@@ -30,3 +32,12 @@ jobs:
         with:
           python-version: '3.11'
       - run: python tools/ci_stack.py
+
+  host-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python tools/ci_host.py

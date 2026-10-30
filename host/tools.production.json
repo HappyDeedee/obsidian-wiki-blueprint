@@ -1,0 +1,1060 @@
+{
+  "tools": [
+    {
+      "description": "Fetch a complete source record from the prebuilt initial-curation queue. This is navigation, not evidence of reading or successful ingestion. Use next_index after a final verified source outcome. For split threads follow parts_next_offset until null. All source bodies must still be read.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "parts_offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "parts_limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_queue"
+    },
+    {
+      "description": "Run deterministic scoped structure/version/readback checks. Integer index uses the historical queue; Inbox uses index:null plus source_id, operation and commit_key returned by curation_commit. Inbox completion checks its finalized program journal and never the historical queue checkpoint. Saves only a derived server receipt, never notes. Chief remains responsible for semantic fidelity. First call after writing outputs with require_completion=false; after committing ledger, processed state and checkpoint call require_completion=true. verify_saved rechecks a previous receipt from current storage. No global lint or factual verification is implied.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "ingest",
+              "refresh",
+              "topic_repair",
+              "backfill"
+            ]
+          },
+          "commit_key": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "source_versions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "mtime": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "mtime"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "knowledge_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "knowledge",
+              "empty",
+              "no_knowledge"
+            ]
+          },
+          "source_record_path": {
+            "type": "string"
+          },
+          "log_path": {
+            "type": "string"
+          },
+          "require_completion": {
+            "type": "boolean",
+            "default": false
+          },
+          "verify_saved": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "index"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_verify"
+    },
+    {
+      "description": "Acquire one serialized writer lease before any autonomous ingest/lint/repair. BUSY means end this run without writing. Pass returned token as writer_token to every prepare/lint_prepare; stage/commit inherit it. Active operations renew a 20 minute lease; release at run end.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_writer_acquire"
+    },
+    {
+      "description": "Release THIS run writer token after all writes. Never release another run lease.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_writer_release"
+    },
+    {
+      "description": "Prepare originals, common_versions hashes and related knowledge segments. Read source_content; long originals use stage. For contexts.full_coverage=false continue curation_context_read using THIS source token. topic_repair/refresh with explicit paths edits existing knowledge without queue advancement or another source success. A new preparation is a new repair operation; retry identical commit token for recovery.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "writer_token": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "ingest",
+              "topic_repair",
+              "refresh",
+              "reclassify",
+              "backfill"
+            ]
+          },
+          "recover_blocked": {
+            "type": "boolean"
+          },
+          "read_budget": {
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "context_window": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "runtime_context_window": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max_output": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "fixed_tokens": {
+                "type": "number",
+                "minimum": 0
+              },
+              "reasoning_reserve": {
+                "type": "number",
+                "minimum": 0
+              },
+              "safety_factor": {
+                "type": "number"
+              },
+              "verified_context_cap": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "cap_source": {
+                "type": "string"
+              },
+              "measured": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "number"
+                  },
+                  "tools": {
+                    "type": "number"
+                  },
+                  "history": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "system",
+                  "tools",
+                  "history"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "context_window",
+              "max_output",
+              "fixed_tokens"
+            ],
+            "additionalProperties": false
+          },
+          "segment_failure": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "context_capacity",
+                  "response_truncated",
+                  "response_format"
+                ]
+              }
+            },
+            "required": [
+              "token",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          "source_failure": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "model_capacity",
+                  "response_format"
+                ]
+              },
+              "run_id": {
+                "type": "string"
+              },
+              "proof": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "token",
+              "kind",
+              "run_id",
+              "proof"
+            ],
+            "additionalProperties": false
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "related_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_prepare"
+    },
+    {
+      "description": "Continue the existing knowledge page prepared for this source token. Follow next_offset until full_coverage=true before update or covered decisions. Character offsets are JavaScript UTF-16 units; use returned offsets exactly.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "token",
+          "path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_context_read"
+    },
+    {
+      "description": "Save the running semantic summary and literal quotes for a fully read long-source segment. Advances reading only, counts zero knowledge successes. Then prepare again.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "quotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "token",
+          "summary",
+          "quotes"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_stage"
+    },
+    {
+      "description": "Submit source-supported content and individual topic candidates. Existing pages must be completely read with prepare/context_read. mode=replace uses a unique exact find string and replacement content; previous version archived automatically. create requires metadata. overview_decision update/unchanged and reason required for knowledge; overview_edit={find,content} plus overview_expected_sha256 from common_versions edits current overview. Retry identical token/input after partial write failure. PASS verifies I/O and quotes, not semantic completeness.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "knowledge",
+              "empty",
+              "no_knowledge"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "concepts": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update",
+                  "none"
+                ]
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          "entities": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update",
+                  "none"
+                ]
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          "concept_candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "create",
+                    "update",
+                    "covered",
+                    "none"
+                  ]
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Required for create/update/covered: complete existing or planned topic .md path; omit only for none. This is separate from aggregate concepts/entities.paths."
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "name",
+                "action",
+                "reason",
+                "evidence"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "entity_candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "create",
+                    "update",
+                    "covered",
+                    "none"
+                  ]
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Required for create/update/covered: complete existing or planned topic .md path; omit only for none. This is separate from aggregate concepts/entities.paths."
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "name",
+                "action",
+                "reason",
+                "evidence"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "contradictions": {
+            "type": "string"
+          },
+          "quotes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "create",
+                    "append",
+                    "replace"
+                  ]
+                },
+                "find": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "mode",
+                "content"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "overview_decision": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "update",
+                  "unchanged"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          "overview_edit": {
+            "type": "object",
+            "properties": {
+              "find": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "find",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "overview_append": {
+            "type": "string"
+          },
+          "overview_expected_sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_commit"
+    },
+    {
+      "description": "List received new Inbox sources, latest complete Codex snapshots, and changed registered historical originals. Respect each returned purpose/source_id/paths/kind. Incomplete snapshots are blocked, originals retained. Same successful version skipped.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_pending"
+    },
+    {
+      "description": "Lightweight queue, actual source successes, repairs, saved reading progress and writer status. Queue cursor is not a success count.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_status"
+    },
+    {
+      "description": "mode=temporal returns explicit expiry/review-date candidates even when content has not changed; save coverage separately from normal lint. Default mode=content scans recurring unresolved links and saved deferred topics. prioritize_paths selects existing pages first. Read linked originals before factual assessment. Link scan does not establish missing topics or semantic completeness.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "writer_token": {
+            "type": "string"
+          },
+          "prioritize_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "content",
+              "temporal"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_lint_prepare"
+    },
+    {
+      "description": "Save findings and explicit reviewed_pages. Each declaration copies the fully read note path, sha256 and read_range from the returned batch; omitted or truncated ranges remain unreviewed. Empty declarations allowed to report limitations. Long pages continue in next lint_prepare. Only complete consecutive coverage of all current versions advances full watermark.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "string"
+          },
+          "evidence_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewed_pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                },
+                "read_range": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "path",
+                "sha256",
+                "read_range"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "token",
+          "findings",
+          "evidence_paths",
+          "reviewed_pages"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "curation_lint_save"
+    },
+    {
+      "description": "Import a completed meeting and preserved Tingwu results, embedding the verified original recording in the same note. Only an existing SHA256 job is accepted; no automatic knowledge curation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "import_meeting"
+    },
+    {
+      "description": "Read the content of a note from the Obsidian vault. Returns the markdown content and a deep link to open it in Obsidian.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Vault-relative path to the note, e.g. 'daily/2026-03-23.md'"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unicode character offset; start at zero and follow next_offset."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4000,
+            "description": "Characters per segment, e.g. 600. Omit offset and limit for the original whole-note response."
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "read_note",
+      "_meta": {
+        "anthropic/maxResultSizeChars": 100000
+      }
+    },
+    {
+      "description": "Write or update a note in the Obsidian vault. Creates the note if it doesn't exist. Replaces the entire content if it does — read first if you need to preserve existing content. Writes are only allowed inside: 00-Test/, 00-Inbox/, 10-Sources/, 20-Wiki/, 30-Projects/, 90-Logs/.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Vault-relative path to the note, e.g. 'daily/2026-03-23.md'"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full markdown content for the note"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "write_note"
+    },
+    {
+      "description": "List markdown notes in the vault with modification timestamps. Examples: list_notes(sort_by='modified', limit=10) for 10 most recent notes. list_notes(name='meeting') to find notes by name. list_notes(folder='daily') for a specific folder. list_notes(tag='project') for notes with a specific tag. Returns up to 100 notes by default. Optional event_from/event_to (YYYY-MM-DD), event_date_state known/unknown and offset enable JSON candidate pagination. Known means marked, not verified; unknown needs body reading. Echo index_revision on later pages. Do not use modified timestamps as event dates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "event_from": {
+            "type": "string"
+          },
+          "event_to": {
+            "type": "string"
+          },
+          "event_date_state": {
+            "type": "string",
+            "enum": [
+              "known",
+              "unknown"
+            ]
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "index_revision": {
+            "type": "string"
+          },
+          "folder": {
+            "type": "string",
+            "description": "Folder to filter by, e.g. 'daily' or 'projects'. Omit for all notes."
+          },
+          "name": {
+            "type": "string",
+            "description": "Filter by name (case-insensitive substring match on path), e.g. 'meeting' or 'project-x'."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Filter by tag, e.g. 'project' or 'daily'. Use list_tags to discover available tags."
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "name",
+              "modified"
+            ],
+            "description": "Sort order: 'name' (default) or 'modified' (most recent first)."
+          },
+          "modified_after": {
+            "type": "string",
+            "description": "Only include notes modified after this ISO date, e.g. '2026-03-25' or '2026-03-25T10:00'."
+          },
+          "limit": {
+            "type": "number",
+            "description": "Max number of notes to return. Default 100."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "list_notes"
+    },
+    {
+      "description": "Search Markdown notes using BM25 with Chinese bigrams and title tiers, multiplied by source weights. Formal knowledge ranks above historical Codex instructions; modification time breaks relevance ties only. Large vaults use BM25 only for 20-Wiki and 30-Projects to bound CPU; original literal hits remain searchable. Read returned notes before citing. limit defaults to 20, max 50; use offset and echo index_revision on subsequent pages. INDEX_CHANGED requires restarting at offset 0. Terms are OR alternatives; Chinese token matches may broaden results. Status and pagination metadata accompany every result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "terms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "maxItems": 20,
+            "description": "Case-insensitive substrings, at most 20 of at most 200 characters each; a note matches when any of them occurs. E.g. ['drag i kanban', 'kanban', 'labels på kategori']."
+          },
+          "folder": {
+            "type": "string",
+            "description": "Folder to search in, e.g. 'projects'. Omit for the whole vault."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Only notes carrying this tag, e.g. 'project'."
+          },
+          "modified_after": {
+            "type": "string",
+            "description": "Only notes modified after this ISO date, e.g. '2026-03-25' or '2026-03-25T10:00'."
+          },
+          "limit": {
+            "type": "number",
+            "description": "Max hits to return, default 20, maximum 50."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "index_revision": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "search_notes"
+    },
+    {
+      "description": "List all folders in the vault. Use this to discover folder names before writing or listing notes. Returns the folder tree with note counts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "list_folders"
+    },
+    {
+      "description": "List all tags used in the vault, sorted by frequency. Use this to discover tags before filtering with list_notes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "list_tags"
+    },
+    {
+      "description": "Edit a note without rewriting it. Use 'append' (default) to add content to the end, 'prepend' to add after frontmatter, or 'replace' to swap old_text with new content. For replace, the old_text must match exactly once. Writes are only allowed inside: 00-Test/, 00-Inbox/, 10-Sources/, 20-Wiki/, 30-Projects/, 90-Logs/.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Vault-relative path to the note, e.g. 'daily/2026-03-25.md'"
+          },
+          "content": {
+            "type": "string",
+            "description": "Text to append, prepend, or use as replacement for old_text"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "append",
+              "prepend",
+              "replace"
+            ],
+            "description": "'append' (default): add to end. 'prepend': add after frontmatter. 'replace': swap old_text with content."
+          },
+          "old_text": {
+            "type": "string",
+            "description": "Required for replace operation. Exact text to find and replace. Must match exactly once."
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "edit_note"
+    },
+    {
+      "description": "Delete a note from the Obsidian vault. Writes are only allowed inside: 00-Test/, 00-Inbox/, 10-Sources/, 20-Wiki/, 30-Projects/, 90-Logs/.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Vault-relative path to the note to delete"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "delete_note"
+    },
+    {
+      "description": "Move or rename a note. Use this to rename a note within the same folder, move it to a different folder, or both at once. Creates destination folders automatically. Writes are only allowed inside: 00-Test/, 00-Inbox/, 10-Sources/, 20-Wiki/, 30-Projects/, 90-Logs/.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Current path, e.g. 'daily/old-name.md'"
+          },
+          "to": {
+            "type": "string",
+            "description": "New path, e.g. 'projects/new-name.md'"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "move_note"
+    },
+    {
+      "description": "Get metadata about a note without reading its full content. Returns frontmatter, tags, outgoing links, backlinks (notes that link to this one), size, and timestamps. Use this to navigate the knowledge graph.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Vault-relative path to the note, e.g. 'projects/my-project.md'"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "get_note_metadata"
+    }
+  ]
+}

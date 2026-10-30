@@ -49,7 +49,7 @@ python tools/wiki.py init --vault "../my-wiki-demo"
 python tools/demo.py --vault "../my-wiki-demo"
 python tools/wiki.py query --vault "../my-wiki-demo" --text "演示项目"
 python tools/wiki.py health --vault "../my-wiki-demo"
-python -m pip install "markitdown==0.1.6"
+python -m pip install "markitdown[pdf,docx,pptx,xlsx,xls]==0.1.6"
 python -m unittest discover -s tests -v
 python tools/check_public.py
 ```

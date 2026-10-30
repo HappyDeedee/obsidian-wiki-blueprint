@@ -2,15 +2,16 @@
 from pathlib import Path
 import hashlib
 import json
+import os
 import re
 import sys
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-IGNORED = {".git", "__pycache__"}
+IGNORED = {".git", "__pycache__", "node_modules"}
 TOP = {"README.md", "AGENTS.md", "LICENSE", "SECURITY.md", "THIRD_PARTY.md",
-       ".gitignore", ".gitattributes", ".github", "docs", "skills", "config",
-       "prompts", "vault-template", "tools", "tests", "release", "system", "manifest.json"}
+       ".gitignore", ".gitattributes", ".dockerignore", ".github", "docs", "skills", "config",
+       "prompts", "vault-template", "tools", "tests", "release", "system", "manifest.json", "host", "benchmark", "scripts", "install.sh"}
 PATTERNS = {
     "github_token": re.compile(r"(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})"),
     "private_key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -25,7 +26,29 @@ PATTERNS = {
 
 
 def files(root=ROOT):
-    return sorted(p for p in root.rglob("*") if p.is_file() and not any(x in IGNORED for x in p.relative_to(root).parts))
+    entries=[]
+    for directory, dirs, names in os.walk(root, followlinks=False):
+        dirs[:]=[d for d in dirs if d not in IGNORED]
+        for name in names:
+            entries.append(Path(directory)/name)
+    return sorted(entries)
+
+
+# Explicit synthetic fixture inventory, not an arbitrary binary allowlist.
+FIXTURES={"sample.docx", "sample.pdf", "sample.pptx", "sample.xlsx", "sample.png", "synthetic-tone.wav"}
+def fixture_ok(root, path):
+    if path.parent != root/"benchmark/fixtures" or path.name not in FIXTURES or path.is_symlink():
+        return False
+    inventory=root/"benchmark/fixtures.json"
+    if not inventory.is_file() or inventory.is_symlink() or path.stat().st_size>256*1024:
+        return False
+    try:
+        data=json.loads(inventory.read_text(encoding="utf-8"))
+        return (data.get("fictional") is True and set(data.get("files",{}))==FIXTURES
+                and data["files"][path.name]==hashlib.sha256(path.read_bytes()).hexdigest())
+    except (ValueError, KeyError, OSError):
+        return False
+
 
 
 def inspect(root=ROOT):
@@ -35,6 +58,8 @@ def inspect(root=ROOT):
         rel = path.relative_to(root)
         if rel.parts[0] not in TOP:
             issues.append({"path": rel.as_posix(), "issue": "not_in_public_allowlist"})
+        if fixture_ok(root, path):
+            continue
         if path.is_symlink() or path.suffix.lower() in {".pem", ".key", ".db", ".sqlite", ".zip", ".gz", ".mp3", ".wav"}:
             issues.append({"path": rel.as_posix(), "issue": "private_or_binary_artifact"})
             continue

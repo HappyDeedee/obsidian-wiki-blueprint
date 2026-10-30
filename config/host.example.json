@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "profile": "new-installation",
+  "paths": {
+    "state": "/private/state",
+    "registry": "/private/registry.json",
+    "meeting_data": "/private/meeting",
+    "upstream_dist": "/app/dist"
+  },
+  "couchdb": {
+    "url": "http://127.0.0.1:15984",
+    "user": "REPLACE_WITH_OWN_SYNC_USER",
+    "password": "REPLACE_WITH_OWN_SYNC_PASSWORD",
+    "database": "wiki",
+    "passphrase": "REPLACE_WITH_OWN_E2E_PASSPHRASE",
+    "obfuscate_paths": false,
+    "case_sensitive": false
+  },
+  "http": {
+    "bind": "127.0.0.1",
+    "port": 18788,
+    "public_origin": "https://wiki.example.invalid"
+  }
+}

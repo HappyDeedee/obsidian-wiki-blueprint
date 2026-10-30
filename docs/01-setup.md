@@ -16,7 +16,7 @@ Git 用于保存方法和代码；**公开 Git 仓库不是私人知识库同步
 
 ```powershell
 python --version
-python -m pip install "markitdown==0.1.6"
+python -m pip install "markitdown[pdf,docx,pptx,xlsx,xls]==0.1.6"
 python -m unittest discover -s tests -v
 python tools/check_public.py
 python tools/wiki.py init --vault "../my-wiki-demo"
