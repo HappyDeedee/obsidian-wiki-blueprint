@@ -31,7 +31,7 @@ class ServicesTests(unittest.TestCase):
         cfg2 = json.loads((other / 'meeting/config.json').read_text())
         self.assertNotEqual(cfg['phone_token'], cfg2['phone_token'])
         self.assertNotEqual(cfg['phone_token'], cfg['signing_secret'])
-        self.assertEqual(Path(cfg['data_dir']), self.private / 'meeting/data')
+        self.assertEqual(Path(cfg['data_dir']).resolve(), (self.private / 'meeting/data').resolve())
         self.assertEqual(json.loads((self.private / 'confirm/people-v2-seeds.json').read_text()), {})
         self.assertTrue((self.private / 'confirm/people.lock').exists())
 
