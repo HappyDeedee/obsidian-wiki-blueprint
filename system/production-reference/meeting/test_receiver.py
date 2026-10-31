@@ -1,4 +1,5 @@
 import hashlib
+import http.client
 import io
 import json
 from pathlib import Path
@@ -169,7 +170,21 @@ class ReceiverTests(unittest.TestCase):
 
     def test_empty_oversized_and_incomplete_uploads_do_not_queue(self):
         self.assertEqual(self.request('/upload', b'')[0], 400)
-        self.assertEqual(self.request('/upload', b'x'*(1024*1024+1))[0], 400)
+        # Reject an oversized declared length before reading a body. Sending a
+        # megabyte with urllib races the server closing the rejected request;
+        # a BrokenPipeError would hide the HTTP response we want to assert.
+        connection = http.client.HTTPConnection('localhost', self.server.server_port, timeout=5)
+        try:
+            connection.request('POST', '/upload', headers={
+                'Authorization': 'Bearer test-phone-token',
+                'X-Audio-Extension': 'wav',
+                'Content-Length': str(1024*1024+1),
+            })
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            self.assertEqual(json.load(response)['error'], 'invalid_audio_size')
+        finally:
+            connection.close()
         with self.assertRaisesRegex(ValueError, 'incomplete_upload'):
             self.capture.accept(io.BytesIO(b'x'), 20, 'wav')
         self.assertEqual(self.request('/jobs')[1]['jobs'], [])

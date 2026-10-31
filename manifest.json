@@ -1,6 +1,6 @@
 {
   "version": "0.2.2",
-  "built_at": "2026-10-31T16:20:28.719166+00:00",
+  "built_at": "2026-10-31T16:26:38.157882+00:00",
   "privacy": "Public-only history. Sanitized source references and fictional examples; no private deployment configuration, vault data, or production credentials.",
   "manifest_self_excluded": true,
   "files": {
@@ -139,7 +139,7 @@
     "system/production-reference/meeting/meeting_analysis.py": "a44992ea04c1822ba0ae892523319b1c19ec5afce0ab2b26273ce80069e39239",
     "system/production-reference/meeting/receiver.py": "88ee8723c36db3a676f047214828f3efc8256d4ca7a54b500b65b3a26d48ba88",
     "system/production-reference/meeting/requirements.txt": "8ab0f0e4d4f340388360906e5df26781f90671e5a589d961f3295e762377f22f",
-    "system/production-reference/meeting/test_receiver.py": "cb5c12cfcde2fb81a81811839e16fdb8a3d5b6e96e9a035d4099325ada14e8a7",
+    "system/production-reference/meeting/test_receiver.py": "56bb72618dfde09d1ae6ea109b6c9d217327b7f925a878d788fe2aa4a3279f43",
     "system/production-reference/meeting-bridge/inbox-audio-bridge.mjs": "06a657f2b42cc94d644f9cffc8c5963b816c3ba1b41c12dc6b174bf647a36c72",
     "system/production-reference/meeting-bridge/meeting-import.mjs": "42983d8e3f2e6e5b42e2e5b0d97d2d4bce3d82296127bd3b4c9b9a2a6f65cb27",
     "system/production-reference/voiceprint/vp_clips.py": "ce8dc80267cd698148a5ac5345ef32214146f3076e70f3c4214a740928ed34e0",
@@ -161,7 +161,7 @@
     "system/runbooks/07-growth.md": "348113294c2fd5b25cf57414e023e8268c6327dad49471b95a73ce1e77572dab",
     "system/runbooks/08-operations.md": "9ee9d3bd0cc819ee300486f839f1de5bbdf2f556410badea4c6b81069b484b52",
     "system/service-inventory.json": "0aec6c2ef1c33c9b68f655d3e180d5b0415c21655ac056f7a09c4724e580c7eb",
-    "system/source-catalog.json": "82ca91b4e217d7095c5d82cfe3ac466df3720f9e37b6e3c17f4eb58acc135de0",
+    "system/source-catalog.json": "0233fbfda7ecf5aad7fac4fdb2c4ed5accdaba9073aaebdaa7f7be6b69f4294d",
     "system/source-map.md": "4a28cadd70cdbdf102098bfce9de1e654f669cc931a97f09c31f1fb27264e1c0",
     "system/STATE.md": "299ca0b4829ae4b5761cc92ff4da805f265d826bbceecfc9bf2aa41e04e5f109",
     "tests/roles.test.mjs": "4fd18a01fb4fcea3dae1f0e84e25f1ea4b99670bee14863aedf1ceddd3435561",
