@@ -1,0 +1,15 @@
+[Unit]
+Description=Wiki incremental aliases (requires a separately integrated MCP host)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=wiki-maintenance
+EnvironmentFile=/etc/wiki/maintenance.env
+ExecStart=/usr/bin/python3 ${WIKI_CHECKOUT}/tools/maintenance.py --config ${WIKI_CONFIG} aliases-incremental --publish
+# Exit 2 means checkpoint/busy, never a publication PASS. Check the JSON log.
+SuccessExitStatus=2
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true

@@ -66,3 +66,5 @@ INDEX_CHANGED 从同一查询第一页重查并去重；偏移单位不一致时
 ## 仓库参考程序
 
 提供 init/read/query/prepare/commit/question/answer/resolve/health/rollback。使用进程级目录锁、精确来源/目标 SHA、备份、原子单文件替换及 journal 恢复。它不提供分段 stage、持久生产租约、独立 OS 身份、MCP transport、全文语义核验、完整 YAML/Obsidian 索引，也不承诺同步引擎的并发写入安全。
+
+平台无关的最小参考宿主见 `system/reference-host/`：用 SQLite + 文件系统演示租约、pending、prepare、连续读取、stage、commit journal 恢复与 verify，stdlib only。它仅供本地测试，不是本章全部合同的实现：缺身份认证、MCP transport、索引/总览收尾、正式 lint 版本覆盖和跨同步安全；恢复受原租约有效期约束。详细能力边界和验收见该目录 README。

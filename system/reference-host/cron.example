@@ -1,0 +1,9 @@
+# Bash/cron example: local reference host only, not an extraction worker.
+# Set WIKI_REFERENCE_HOST, WIKI_DEMO_VAULT and WIKI_DEMO_STATE to your own
+# absolute paths outside production. pending only reads the registered queue.
+0 * * * * /usr/bin/python3 "$WIKI_REFERENCE_HOST/curation_host.py" --vault "$WIKI_DEMO_VAULT" --state "$WIKI_DEMO_STATE" pending
+
+# No enabled verify job is provided without a real commit_key.
+# Manually verify a key returned by commit:
+# python3 "$WIKI_REFERENCE_HOST/curation_host.py" --vault "$WIKI_DEMO_VAULT" --state "$WIKI_DEMO_STATE" verify --commit-key ACTUAL_COMMIT_KEY
+# A scheduled Agent/model loop is still required for extraction.
