@@ -66,3 +66,5 @@ INDEX_CHANGED 从同一查询第一页重查并去重；偏移单位不一致时
 ## 仓库参考程序
 
 提供 init/read/query/prepare/commit/question/answer/resolve/health/rollback。使用进程级目录锁、精确来源/目标 SHA、备份、原子单文件替换及 journal 恢复。它不提供分段 stage、持久生产租约、独立 OS 身份、MCP transport、全文语义核验、完整 YAML/Obsidian 索引，也不承诺同步引擎的并发写入安全。
+
+平台无关的最小参考宿主见 `system/reference-host/`：用 SQLite + 文件系统实现本章 "curation 扩展" 的全部最小行为（租约、pending、prepare、连续读取、stage、commit 四重验证与幂等恢复、verify、lint），stdlib only。它是"确定性程序"一半的最小形态；身份认证、MCP transport、多机并发仍须按本章在生产宿主中实现。

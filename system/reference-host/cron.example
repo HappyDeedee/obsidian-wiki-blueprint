@@ -1,0 +1,15 @@
+# Minimal curation reference host: scheduling examples.
+# Replace /srv/wiki/vault and /var/lib/kb-curation with your own paths.
+# Cron only schedules *deterministic* actions; the model half (understanding
+# sources and proposing changes per the ingest skill) needs a separate
+# scheduled Agent task that calls this host.
+
+# Every hour: list open sources so the worker loop can pick them up.
+0 * * * * /usr/bin/python3 /srv/wiki/reference-host/curation_host.py --vault /srv/wiki/vault --state /var/lib/kb-curation pending
+
+# Daily 21:35: verify yesterday's commits (example: re-verify the latest
+# commit_key recorded by your worker; never trust self-reported outputs).
+35 21 * * * /usr/bin/python3 /srv/wiki/reference-host/curation_host.py --vault /srv/wiki/vault --state /var/lib/kb-curation verify --commit-key LATEST >> /var/log/kb-curation-verify.log 2>&1
+
+# Note: "LATEST" above is a placeholder. Your worker records real commit_keys
+# in its own ledger; loop over them instead of inventing this token.

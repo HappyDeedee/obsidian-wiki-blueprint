@@ -1,0 +1,2 @@
+# No third-party dependencies. Standard library only (sqlite3, hashlib,
+# json, pathlib, secrets, time, argparse). Python 3.11+.
