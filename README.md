@@ -75,6 +75,8 @@ python tools/check_public.py
 9. [验收与故障注入](docs/08-acceptance.md)
 10. [公开版与生产能力对照](docs/09-parity-and-limits.md)
 11. [隐私与发布维护](SECURITY.md)、[依赖与致谢](THIRD_PARTY.md)
+12. [服务配置与搭建总入口](docs/12-service-setup.md)
+13. [模型 Agent 的定时整理：流程、租约与调度](docs/17-model-scheduler.md)
 
 四个技能位于 [skills/](skills/)，安装位置取决于目标 Agent；保留完整仓库以解析引用。已有同名 Skill 先备份，不要用公开版覆盖仍在服务私人环境的生产版本。
 

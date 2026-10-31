@@ -457,7 +457,8 @@
       "path": "system/production-reference/meeting/test_receiver.py",
       "kind": "sanitized_running_source",
       "status": "adapted_reference_requires_integration_and_configuration",
-      "public_sha256": "cb5c12cfcde2fb81a81811839e16fdb8a3d5b6e96e9a035d4099325ada14e8a7"
+      "public_sha256": "56bb72618dfde09d1ae6ea109b6c9d217327b7f925a878d788fe2aa4a3279f43",
+      "public_adaptations": "2026-11-01: assert oversized upload rejection from headers before sending a body; avoid a client/server early-close race without changing the receiver."
     },
     {
       "path": "system/production-reference/voiceprint/vp_clips.py",

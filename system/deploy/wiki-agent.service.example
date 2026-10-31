@@ -1,0 +1,21 @@
+[Unit]
+Description=Wiki model Agent (requires an installed CLI wrapper and integrated MCP host)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=wiki-agent
+EnvironmentFile=/etc/wiki/agent.env
+# Placeholder: replace with your installed, manually verified absolute wrapper path.
+# The wrapper loads Skill/prompt/config, enforces budgets and preserves transaction state.
+ExecStart=/usr/local/libexec/wiki-agent-run
+TimeoutStartSec=30min
+TimeoutStopSec=90s
+Restart=no
+# Nonzero CLI exits are failures; do not copy maintenance's SuccessExitStatus=2.
+StandardOutput=journal
+StandardError=journal
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
