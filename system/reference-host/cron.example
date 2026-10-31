@@ -1,15 +1,9 @@
-# Minimal curation reference host: scheduling examples.
-# Replace /srv/wiki/vault and /var/lib/kb-curation with your own paths.
-# Cron only schedules *deterministic* actions; the model half (understanding
-# sources and proposing changes per the ingest skill) needs a separate
-# scheduled Agent task that calls this host.
+# Bash/cron example: local reference host only, not an extraction worker.
+# Set WIKI_REFERENCE_HOST, WIKI_DEMO_VAULT and WIKI_DEMO_STATE to your own
+# absolute paths outside production. pending only reads the registered queue.
+0 * * * * /usr/bin/python3 "$WIKI_REFERENCE_HOST/curation_host.py" --vault "$WIKI_DEMO_VAULT" --state "$WIKI_DEMO_STATE" pending
 
-# Every hour: list open sources so the worker loop can pick them up.
-0 * * * * /usr/bin/python3 /srv/wiki/reference-host/curation_host.py --vault /srv/wiki/vault --state /var/lib/kb-curation pending
-
-# Daily 21:35: verify yesterday's commits (example: re-verify the latest
-# commit_key recorded by your worker; never trust self-reported outputs).
-35 21 * * * /usr/bin/python3 /srv/wiki/reference-host/curation_host.py --vault /srv/wiki/vault --state /var/lib/kb-curation verify --commit-key LATEST >> /var/log/kb-curation-verify.log 2>&1
-
-# Note: "LATEST" above is a placeholder. Your worker records real commit_keys
-# in its own ledger; loop over them instead of inventing this token.
+# No enabled verify job is provided without a real commit_key.
+# Manually verify a key returned by commit:
+# python3 "$WIKI_REFERENCE_HOST/curation_host.py" --vault "$WIKI_DEMO_VAULT" --state "$WIKI_DEMO_STATE" verify --commit-key ACTUAL_COMMIT_KEY
+# A scheduled Agent/model loop is still required for extraction.

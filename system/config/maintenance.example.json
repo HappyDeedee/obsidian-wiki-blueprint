@@ -1,0 +1,5 @@
+{
+  "mcp_url": "https://wiki.example.invalid/mcp",
+  "mcp_token": "REPLACE_WITH_YOUR_MAINTENANCE_CREDENTIAL",
+  "state_dir": "/var/lib/wiki-maintenance"
+}

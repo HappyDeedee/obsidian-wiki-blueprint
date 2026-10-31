@@ -33,20 +33,36 @@ SQLite 要在停止写入后复制或使用一致性 backup API。Docker 卷不�
 
 ## 程序化维护任务
 
-别名表、知识索引、总览等派生视图和定期巡检由程序化任务生成，不是手工维护的第二份真相。搭好库之后按下面清单逐项登记"已启用/未启用"；未启用的任务，其产出在查询回答中如实说明覆盖范围，不编造。
+先区分“可运行的公开入口”和“需要适配的生产参考”。下列维护入口依赖使用者已经集成的 MCP 宿主；本 PR 没有安装该宿主，也没有实现全栈一键部署。
 
-| 任务 | 程序 | 建议频率 | 说明 |
+| 任务 | 入口 | 建议频率 | 实际职责及限制 |
 |---|---|---|---|
-| 别名表全量刷新 | `system/production-reference/maintenance/aliases-refresh.py` | 每周或主题页批量变更后 | 从主题页 `aliases` 重建 `20-Wiki/别名表.md` |
-| 别名表增量刷新 | `system/production-reference/maintenance/aliases-incremental.py` | 每日 | 串行、有检查点；索引不完整时保留旧视图，从不发布不完整视图 |
-| 派生文件刷新 | `system/production-reference/maintenance/wiki-generated-refresh.py` | 结构任务之后 | 刷新知识索引/总览等派生文件；先取写入租约，失败不发布半成品 |
-| 搜索目录对账 | `system/production-reference/curation/index-catalog-reconcile.mjs` | 与索引更新同频 | 只修一次性搜索索引，不写库内笔记；不可读的权威笔记不静默删除 |
-| 每日结构巡检 | health Skill（结构部分） | 每日 | 由程序检查路径/链接/台账/索引；结构 PASS 不证明语义通过 |
-| 每周内容/时效巡检 | health Skill（内容与到期复核） | 每周 | 内容必须回原文核验；到期复核与普通覆盖分开，见 [巡检运维](../../docs/07-operations.md) |
+| 别名表全量刷新 | `tools/maintenance.py ... aliases-full --publish` | 首次启用或主题页批量变更后 | 重读全部别名候选，校验完整性、取得 writer、备份和回读；没有候选时保留旧视图 |
+| 别名表增量刷新 | `tools/maintenance.py ... aliases-incremental --publish` | 每日或检查点续跑 | 每批默认 40 项，`CHECKPOINT` 只保存读取进度，不发布；最终 `PASS` 才算发布成功 |
+| 待处理队列与状态刷新 | `system/production-reference/maintenance/wiki-generated-refresh.py` | 完成私有集成后 | 参考程序只在配置启用 G 时运行 pending queue，并尝试 inbox status；不生成知识索引或总览 |
+| 知识索引、总览 | 本 PR 未提供统一生成入口 | 未启用 | 模板存在不等于生成任务已部署；查询须说明实际覆盖，不能编造任务成功 |
+| 搜索目录对账 | `system/production-reference/curation/index-catalog-reconcile.mjs` | 集成实际宿主后 | 需要该宿主的索引适配；不是独立命令，不写库内笔记 |
+| 每日结构巡检 | health Skill 的结构部分 | 每日 | 需要实际 Agent/程序调度；结构 PASS 不证明语义通过 |
+| 每周内容/时效巡检 | health Skill 的内容和到期复核部分 | 每周 | 需要模型及来源核验；见 [巡检运维](../../docs/07-operations.md) |
 
-调度方式按使用者自己的平台选择其一：cron、systemd timer、Windows 任务计划，或 Agent 平台的定时任务。**同一库只配一个调度源**，避免重复执行；任务分工见 [07-growth.md](07-growth.md) 的"调度和控制器"节。每个日程必须明确"谁执行、什么权限、最大费用、何时暂停、如何回读"。
+### 先手动验收别名维护，再开定时任务
 
-失败处理：任务失败不静默跳过——记录失败原因与受影响范围。别名/索引生成失败时保留上一版可用视图；巡检发现有未处理新源而当日零提交，按 health Skill 规则报故障。自动恢复默认关闭，暂停、归档、人工维护优先于恢复。
+1. 在仓库根目录安装 `python -m pip install -r system/maintenance/requirements.txt`。复制 `system/config/maintenance.example.json` 到仓库外的私有配置文件，填自己的 `mcp_url`、维护身份 `mcp_token`、仓库外绝对路径 `state_dir`；Linux 配置权限设为 600。环境变量 `WIKI_MCP_URL`、`WIKI_MCP_TOKEN`、`WIKI_STATE_DIR` 可以覆盖对应字段。不要把配置、缓存或回执提交 Git。
+2. 宿主必须实际支持 `search_notes`（含完整 SearchPage 标记）、整页 `read_note`、`write_note` 和 `curation_writer_acquire/release`，返回格式须与 production-reference 的 `vault-client.py` 和 `wiki-generated-views.py` 兼容。先在自己的测试库确认权限和格式；最小 Python 参考宿主没有这些 MCP 读取工具，不能直接填进此配置。
+3. 执行以下命令；`PRIVATE_CONFIG` 要换成自己的仓库外配置路径。首次不要带 `--publish`，检查 READY 后再发布：
+
+```text
+python tools/maintenance.py --config PRIVATE_CONFIG aliases-full
+python tools/maintenance.py --config PRIVATE_CONFIG aliases-full --publish
+python tools/maintenance.py --config PRIVATE_CONFIG aliases-incremental --publish
+```
+
+4. 发布后读回 `20-Wiki/别名表.md`，确认别名链接对应主题页，原页和来源未修改；重复运行应 `changed:false`。`READY` 是未发布的校验结果；`CHECKPOINT`、`BUSY` 的退出码为 2，不算发布成功；`FAIL` 为 1。增量检查点可在下一轮继续，但高频修改或候选超过索引上限可能一直不能收尾；此时保持旧视图、停任务检查，不能把重试次数算成功。
+5. 手动 PASS 后再选择一种调度源。同一库只选一个，避免重复执行。Linux 示例见 `system/deploy/wiki-aliases.service.example` 和 `.timer.example`：将文件安装为 `wiki-aliases.service/timer`；预先创建专用用户 `wiki-maintenance`，授予代码只读及私有配置读取、state_dir 写入权限；在 `/etc/wiki/maintenance.env` 填 `WIKI_CHECKOUT`（绝对仓库路径）和 `WIKI_CONFIG`（私有配置路径）。确认 `/usr/bin/python3` 已安装上述依赖后执行 `sudo systemctl daemon-reload`、`sudo systemctl start wiki-aliases.service`，查日志确认实际 JSON，再执行 `sudo systemctl enable --now wiki-aliases.timer`。`systemctl is-active` 不代替发布回执；示例不是自动安装器。
+
+Windows/macOS 仅在本地 L0 演示中运行 CLI；本节的 Linux 定时器不适用于它们。各任务需登记执行者、权限、费用上限、暂停条件和实际回读方式；本别名程序不调用模型。其他 Agent 任务见 [调度和控制器](07-growth.md)。
+
+失败不静默跳过。索引不完整、源变化或 YAML 错误时不发布，保留旧视图；写入失败需核对回读与 `state_dir/generated-view-backups`，不能无条件覆盖恢复。进程被终止后可能留下 `state_dir/aliases.lock`，确认没有运行进程后再手动移除。原件、队列和同步数据不得清空；自动恢复默认关闭。
 
 ## 能报告到哪一级
 

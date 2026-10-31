@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Minimal platform-independent reference host for the curation_* contract.
 
-Implements docs/04-tool-contract.md ("curation 扩展") with nothing but the
+Demonstrates a local subset of docs/04-tool-contract.md with the
 Python standard library: SQLite holds leases, the pending queue, the durable
 journal and page versions; the vault itself is plain Markdown files on disk.
 
-This host is the *deterministic half* of the system: permissions, versions,
-transactions, the journal, the ledger and read-back. The *model half*
+This host demonstrates versions, transactions, the journal and read-back.
+It has no production identity enforcement or index finalization. The model
 (understanding sources, proposing changes) is the Agent's job, driven by the
-ingest skill. Pair this host with a scheduled Agent run (see cron.example)
-and you have the "24h worker" without any vendor platform.
+ingest skill. Scheduled model execution and production integration remain
+separate work; cron.example only inspects the local queue.
 
 What this host is NOT (by design, see README.md):
   - no authentication / multi-user isolation: single trusted operator only.
@@ -153,8 +153,11 @@ class CurationHost:
         rel = Path(path).as_posix()
         if Path(rel).suffix.lower() not in ALLOWED_EXTENSIONS:
             raise HostError(f"unexpected extension rejected: {path}")
-        full = (self.vault / rel).resolve()
-        if not str(full).startswith(str(self.vault) + os.sep) and full != self.vault:
+        lexical = self.vault / rel
+        if lexical.is_symlink() or any(p.is_symlink() for p in lexical.parents if p != self.vault):
+            raise HostError(f"symlink rejected: {path}")
+        full = lexical.resolve()
+        if not full.is_relative_to(self.vault):
             raise HostError(f"path escapes vault: {path}")
         if full.is_symlink() or any(p.is_symlink() for p in full.parents
                                     if str(p).startswith(str(self.vault))):
@@ -176,21 +179,20 @@ class CurationHost:
 
     def writer_acquire(self, owner: str, purpose: str = "",
                        ttl: int = DEFAULT_LEASE_TTL) -> dict:
+        if not owner or ttl <= 0:
+            raise HostError("owner and positive ttl required")
         now = _utcnow()
-        self._purge_expired_leases(now)
-        row = self.db.execute(
-            "SELECT token, owner, expires_at FROM leases LIMIT 1").fetchone()
-        if row:
-            return {"status": "BUSY", "owner": row["owner"],
-                    "expires_at": row["expires_at"],
-                    "hint": "single writer only; retry after expiry, never "
-                            "acquire over a live lease"}
-        token = "w_" + secrets.token_hex(16)
-        self.db.execute(
-            "INSERT INTO leases(token, owner, purpose, created_at, expires_at)"
-            " VALUES(?,?,?,?,?)",
-            (token, owner, purpose, now, now + ttl))
-        self.db.commit()
+        # Serialize the check and insert across independent CLI processes.
+        with self.db:
+            self.db.execute("BEGIN IMMEDIATE")
+            self.db.execute("DELETE FROM leases WHERE expires_at <= ?", (now,))
+            row = self.db.execute("SELECT token, owner, expires_at FROM leases LIMIT 1").fetchone()
+            if row:
+                return {"status": "BUSY", "owner": row["owner"], "expires_at": row["expires_at"]}
+            token = "w_" + secrets.token_hex(16)
+            self.db.execute(
+                "INSERT INTO leases(token, owner, purpose, created_at, expires_at) VALUES(?,?,?,?,?)",
+                (token, owner, purpose, now, now + ttl))
         return {"status": "ACQUIRED", "token": token, "owner": owner,
                 "expires_at": now + ttl}
 
@@ -216,6 +218,8 @@ class CurationHost:
 
     def writer_renew(self, token: str, owner: str,
                      ttl: int = DEFAULT_LEASE_TTL) -> dict:
+        if ttl <= 0:
+            raise HostError("positive ttl required")
         row = self._require_lease(token)
         if row["owner"] != owner:
             raise HostError("only the lease owner may renew it")
@@ -237,14 +241,26 @@ class CurationHost:
 
     def source_register(self, source_id: str, kind: str, paths: list[str],
                         purpose: str = "") -> dict:
+        if not source_id or not paths or len(set(paths)) != len(paths):
+            raise HostError("source_id and unique nonempty paths required")
         for p in paths:
             rel = Path(p).as_posix()
-            if rel.startswith(EXCLUDED_SOURCE_PREFIXES):
+            if rel.startswith(EXCLUDED_SOURCE_PREFIXES + ("99-System/",)) or rel in {
+                "20-Wiki/别名表.md", "20-Wiki/知识索引.md", "20-Wiki/总览.md"}:
                 raise HostError(
                     f"source under excluded prefix rejected: {p} "
                     "(logs/generated material never enter the queue)")
             self._safe(p)  # validates + requires existence via _source_hash
         digest = self._source_hash(paths)
+        previous = self.db.execute("SELECT * FROM sources WHERE source_id=?", (source_id,)).fetchone()
+        if previous:
+            if json.loads(previous["paths_json"]) != paths or previous["kind"] != kind:
+                raise HostError("source_id cannot be rebound to different paths/kind")
+            if previous["content_sha256"] == digest:
+                return {"source_id": source_id, "status": previous["status"],
+                        "content_sha256": digest, "paths": paths, "reused": True}
+            if previous["status"] == "in_progress":
+                raise HostError("source has an unfinished transaction; recover it first")
         now = _utcnow()
         self.db.execute(
             "INSERT OR REPLACE INTO sources(source_id, kind, paths_json,"
@@ -318,10 +334,19 @@ class CurationHost:
             text = self._read_text(p)
             contexts.append({"path": p, "sha256": _sha256_text(text),
                              "chars": len(text)})
+        bound = {"source_id": source_id, "content_sha256": digest,
+                 "rule_sha256": _sha256_text(self._read_text("99-System/知识库规则.md")),
+                 "paths": paths, "contexts": contexts, "total": total}
+        key = "prepare:" + token
+        previous = self.db.execute("SELECT value FROM kv WHERE key=?", (key,)).fetchone()
+        if previous and json.loads(previous["value"]) != bound:
+            raise HostError("token already bound to another snapshot; do not mix sources")
+        if not previous:
+            self.db.execute("INSERT INTO kv(key,value) VALUES(?,?)", (key, _canonical(bound)))
         self.db.execute(
             "UPDATE sources SET status='in_progress', updated_at=? "
             "WHERE source_id=?", (_utcnow(), source_id))
-        for c in contexts:
+        for c in contexts if not previous else []:
             self.db.execute(
                 "INSERT INTO reads(token, path, kind, range_start, range_end,"
                 " sha256, read_at)"
@@ -335,9 +360,23 @@ class CurationHost:
                 "contexts": contexts,
                 "rule_version": self._rule_version()}
 
+    def _prepared(self, token: str, source_id: str | None = None) -> dict:
+        self._require_lease(token)
+        row = self.db.execute("SELECT value FROM kv WHERE key=?", ("prepare:" + token,)).fetchone()
+        if not row:
+            raise HostError("prepare required")
+        bound = json.loads(row["value"])
+        if source_id is not None and source_id != bound["source_id"]:
+            raise HostError("source does not match prepared transaction")
+        if self._source_hash(bound["paths"]) != bound["content_sha256"]:
+            raise HostError("prepared source snapshot changed")
+        if _sha256_text(self._read_text("99-System/知识库规则.md")) != bound["rule_sha256"]:
+            raise HostError("rules changed since prepare")
+        return bound
+
     def source_read(self, token: str, source_id: str,
                     offset: int = 0, limit: int = 2500) -> dict:
-        self._require_lease(token)
+        self._prepared(token, source_id)
         src = self.source_status(source_id)
         paths = json.loads(src["paths_json"])
         # Concatenate declared source paths as one logical source.
@@ -380,7 +419,7 @@ class CurationHost:
 
     def stage(self, token: str) -> dict:
         """Checkpoint accumulated reading evidence. Never counts as success."""
-        self._require_lease(token)
+        self._prepared(token)
         rows = self.db.execute(
             "SELECT path, kind, range_start, range_end FROM reads"
             " WHERE token=? AND kind IN ('source','old_page')"
@@ -395,10 +434,14 @@ class CurationHost:
                     f"non-contiguous staged range for {r['path']}: "
                     f"expected start {expect}")
             seen[key] = r["range_end"]
-        return {"staged_ranges": [
+        result = {"staged_ranges": [
             {"path": p, "kind": k, "read_chars": e}
             for (p, k), e in seen.items()],
             "counts_as_success": False}
+        self.db.execute("INSERT OR REPLACE INTO kv(key,value) VALUES(?,?)",
+                        ("stage:" + token, _canonical(result)))
+        self.db.commit()
+        return result
 
     # ------------------------------------------------------------------
     # commit: pre-write verification, durable journal, idempotent recovery
@@ -425,128 +468,149 @@ class CurationHost:
     def commit(self, token: str, proposal: dict) -> dict:
         lease = self._require_lease(token)
         source_id = proposal.get("source_id")
-        operation = proposal.get("operation", "new")
         if not source_id:
             raise HostError("proposal needs source_id")
-        src = self.source_status(source_id)
         params_sha = _sha256_text(_canonical(proposal))
-
-        # Idempotent recovery: same token + same params -> same result.
         existing = self.db.execute(
-            "SELECT commit_key, status, journal_json FROM commits"
-            " WHERE token=? AND params_sha256=?",
+            "SELECT * FROM commits WHERE token=? AND params_sha256=?",
             (token, params_sha)).fetchone()
         if existing and existing["status"] == "committed":
+            if not self.verify(existing["commit_key"])["verified"]:
+                raise HostError("committed output changed; do not report success")
             journal = json.loads(existing["journal_json"])
-            return {"commit_key": existing["commit_key"],
-                    "status": "committed",
-                    "recovered": True,
-                    "written": journal.get("written", [])}
-
-        paths = json.loads(src["paths_json"])
-        if self._source_hash(paths) != src["content_sha256"]:
-            raise HostError("source snapshot changed mid-transaction; "
-                            "re-prepare")
-
-        # Old-page optimistic concurrency: versions must match prepare().
-        declared = self.db.execute(
-            "SELECT path, sha256 FROM reads WHERE token=?"
-            " AND kind='context-declared'", (token,)).fetchall()
-        for d in declared:
-            current = _sha256_text(self._read_text(d["path"]))
-            if current != d["sha256"]:
-                raise HostError(
-                    f"old page changed since prepare(): {d['path']}")
-
-        # Literal evidence: every quote must appear in staged source text.
-        staged = self._staged_source_text(token)
-        for q in proposal.get("quotes", []):
-            if q.get("text", "") not in staged:
-                raise HostError(
-                    "quote not found in staged source reads; stage the "
-                    f"evidence first: {q.get('path')}")
-
-        commit_key = ("cmt_" + time.strftime("%Y%m%dT%H%M%S", time.gmtime())
-                      + "_" + secrets.token_hex(4))
-        journal: dict = {
-            "commit_key": commit_key,
-            "owner": lease["owner"],
-            "source_id": source_id,
-            "operation": operation,
-            "rule_version": self._rule_version(),
-            "staged_ranges": self.stage(token)["staged_ranges"],
-            "quotes": proposal.get("quotes", []),
-            "overview_decision": proposal.get("overview_decision"),
-            "plan": proposal.get("updates", []),
-            "steps_completed": [],
-            "written": [],
-            "backups": [],
-        }
-        self.db.execute(
-            "INSERT INTO commits(commit_key, token, source_id, operation,"
-            " params_sha256, status, journal_json, created_at)"
-            " VALUES(?,?,?,?,?,'in_progress',?,?)",
-            (commit_key, token, source_id, operation, params_sha,
-             json.dumps(journal, ensure_ascii=False), _utcnow()))
-        self.db.commit()
-
-        def save_journal(status: str) -> None:
-            journal["status"] = status
+            return {"commit_key": existing["commit_key"], "status": "committed",
+                    "recovered": True, "written": journal["written"]}
+        if self.db.execute("SELECT 1 FROM commits WHERE token=? AND params_sha256!=?",
+                           (token, params_sha)).fetchone():
+            raise HostError("recover the original proposal with the same parameters")
+        bound = self._prepared(token, source_id)
+        if existing:
+            journal = json.loads(existing["journal_json"])
+            commit_key = existing["commit_key"]
+        else:
+            stage = self.db.execute("SELECT value FROM kv WHERE key=?", ("stage:" + token,)).fetchone()
+            if not stage:
+                raise HostError("stage required before commit")
+            staged = json.loads(stage["value"])
+            source_ranges = [r for r in staged["staged_ranges"] if r["kind"] == "source"]
+            if len(source_ranges) != 1 or source_ranges[0]["read_chars"] != bound["total"]:
+                raise HostError("read and stage the complete source before commit")
+            for quote in proposal.get("quotes", []):
+                if quote.get("path") not in bound["paths"] or not quote.get("text"):
+                    raise HostError("quote needs a nonempty text and declared source path")
+                if quote["text"] not in self._read_text(quote["path"]):
+                    raise HostError("quote not found in its declared source")
+            operation = proposal.get("operation", "new")
+            if operation not in {"new", "refresh", "topic_repair"}:
+                raise HostError("unsupported operation")
+            contexts = {c["path"]: c for c in bound["contexts"]}
+            for context in contexts.values():
+                if _sha256_text(self._read_text(context["path"])) != context["sha256"]:
+                    raise HostError("old page changed since prepare")
+            plan = []
+            seen = set()
+            for update in proposal.get("updates", []):
+                target = update["path"]
+                full = self._safe(target)
+                if not target.startswith(("20-Wiki/", "30-Projects/")) or target in bound["paths"]:
+                    raise HostError("only derived knowledge targets may be written")
+                if target in {"20-Wiki/别名表.md", "20-Wiki/知识索引.md", "20-Wiki/总览.md"}:
+                    raise HostError("generated navigation requires its own maintenance flow")
+                if target in seen or not isinstance(update.get("content"), str):
+                    raise HostError("duplicate target or invalid content")
+                seen.add(target)
+                mode = update.get("mode", "create")
+                before = None
+                if mode == "create":
+                    if full.exists():
+                        raise HostError("create target exists")
+                elif mode == "update":
+                    context = contexts.get(target)
+                    if not context:
+                        raise HostError("update target must be declared in prepare")
+                    covered = [r for r in staged["staged_ranges"]
+                               if r["kind"] == "old_page" and r["path"] == target]
+                    if len(covered) != 1 or covered[0]["read_chars"] != context["chars"]:
+                        raise HostError("read and stage the complete old page before update")
+                    before = context["sha256"]
+                else:
+                    raise HostError("unknown update mode")
+                plan.append({**update, "mode": mode, "before_sha256": before,
+                             "sha256": _sha256_text(update["content"])})
+            commit_key = "cmt_" + secrets.token_hex(16)
+            journal = {"commit_key": commit_key, "owner": lease["owner"],
+                       "source_id": source_id, "source_sha256": bound["content_sha256"],
+                       "operation": operation, "rule_version": self._rule_version(),
+                       "rule_sha256": bound["rule_sha256"],
+                       "staged_ranges": staged["staged_ranges"],
+                       "quotes": proposal.get("quotes", []),
+                       "overview_decision": proposal.get("overview_decision"),
+                       "plan": plan, "steps_completed": [], "written": [], "backups": []}
             self.db.execute(
-                "UPDATE commits SET status=?, journal_json=? WHERE commit_key=?",
-                (status, json.dumps(journal, ensure_ascii=False), commit_key))
+                "INSERT INTO commits(commit_key,token,source_id,operation,params_sha256,status,journal_json,created_at) "
+                "VALUES(?,?,?,?,?,'in_progress',?,?)",
+                (commit_key, token, source_id, operation, params_sha, _canonical(journal), _utcnow()))
+            self.db.commit()
+
+        def save(status):
+            journal["status"] = status
+            self.db.execute("UPDATE commits SET status=?,journal_json=? WHERE commit_key=?",
+                            (status, _canonical(journal), commit_key))
             self.db.commit()
 
         try:
-            for upd in proposal.get("updates", []):
-                path = upd["path"]
-                mode = upd.get("mode", "create")
-                full = self._safe(path)
-                if mode == "create":
-                    if full.exists():
-                        raise HostError(f"create target exists: {path}")
-                elif mode == "update":
-                    if not full.exists():
-                        raise HostError(f"update target missing: {path}")
-                    # Backup before replace (contract: 写入计划/备份).
-                    backup = (self.state / "backups" / commit_key /
-                              (path.replace("/", "__")))
-                    backup.parent.mkdir(parents=True, exist_ok=True)
-                    backup.write_bytes(full.read_bytes())
-                    journal["backups"].append(
-                        {"path": path, "backup": str(backup)})
-                else:
-                    raise HostError(f"unknown update mode: {mode}")
-                # Atomic single-file replace.
-                tmp = full.parent / (full.name + ".tmp")
-                tmp.write_text(upd["content"], encoding="utf-8")
-                os.replace(tmp, full)
-                digest = _sha256_text(upd["content"])
-                journal["written"].append({"path": path, "sha256": digest})
-                journal["steps_completed"].append(f"write:{path}")
-                self.db.execute(
-                    "INSERT OR REPLACE INTO page_versions(path, sha256,"
-                    " commit_key, updated_at) VALUES(?,?,?,?)",
-                    (path, digest, commit_key, _utcnow()))
-                save_journal("in_progress")
+            for update in journal["plan"]:
+                self._prepared(token, source_id)
+                target = update["path"]
+                full = self._safe(target)
+                actual = _sha256_text(self._read_text(target)) if full.exists() else None
+                # A crash may occur after the file replace but before journal save.
+                if actual != update["sha256"]:
+                    if actual != update["before_sha256"]:
+                        raise HostError("target changed; preserve partial journal for manual recovery")
+                    if update["mode"] == "update":
+                        backup = self.state / "backups" / commit_key / (str(len(journal["backups"])) + ".md")
+                        backup.parent.mkdir(parents=True, exist_ok=True)
+                        with backup.open("xb") as stream:
+                            stream.write(full.read_bytes())
+                            stream.flush()
+                            os.fsync(stream.fileno())
+                        journal["backups"].append({"path": target, "backup": str(backup)})
+                    save("in_progress")
+                    full.parent.mkdir(parents=True, exist_ok=True)
+                    import tempfile
+                    fd, temp_name = tempfile.mkstemp(prefix=".wiki-", suffix=".tmp", dir=full.parent)
+                    try:
+                        with os.fdopen(fd, "w", encoding="utf-8", newline="") as stream:
+                            stream.write(update["content"])
+                            stream.flush()
+                            os.fsync(stream.fileno())
+                        if update["mode"] == "create":
+                            os.link(temp_name, full)  # atomic create-if-absent
+                        else:
+                            os.replace(temp_name, full)
+                    finally:
+                        if os.path.exists(temp_name):
+                            os.unlink(temp_name)
+                if _sha256_text(self._read_text(target)) != update["sha256"]:
+                    raise HostError("write readback mismatch")
+                if not any(w["path"] == target for w in journal["written"]):
+                    journal["written"].append({"path": target, "sha256": update["sha256"]})
+                    journal["steps_completed"].append("write:" + target)
+                self.db.execute("INSERT OR REPLACE INTO page_versions VALUES(?,?,?,?)",
+                                (target, update["sha256"], commit_key, _utcnow()))
+                save("in_progress")
+            # Finalize source status and journal together, after all readbacks.
+            self.db.execute("UPDATE sources SET status='done',updated_at=? WHERE source_id=?",
+                            (_utcnow(), source_id))
+            save("committed")
         except Exception:
-            save_journal("failed")
+            self.db.rollback()
+            save("failed")
             raise
-
-        self.db.execute(
-            "UPDATE sources SET status='done', updated_at=? WHERE source_id=?",
-            (_utcnow(), source_id))
-        self.db.commit()
-        save_journal("committed")
-
-        # Read-back: re-read every written file from disk.
-        read_back = []
-        for w in journal["written"]:
-            actual = _sha256_text(self._read_text(w["path"]))
-            read_back.append({"path": w["path"],
-                              "match": actual == w["sha256"]})
-        return {"commit_key": commit_key, "status": "committed",
-                "written": journal["written"], "read_back": read_back}
+        return {"commit_key": commit_key, "status": "committed", "recovered": bool(existing),
+                "written": journal["written"],
+                "read_back": [{"path": w["path"], "match": True} for w in journal["written"]]}
 
     # ------------------------------------------------------------------
     # verify: never trust self-reported outputs, re-read from disk
@@ -570,12 +634,12 @@ class CurationHost:
                            "pass": match})
             ok = ok and match
         src = self.db.execute(
-            "SELECT status FROM sources WHERE source_id=?",
+            "SELECT status,content_sha256 FROM sources WHERE source_id=?",
             (journal.get("source_id"),)).fetchone()
-        src_done = bool(src) and src["status"] == "done"
+        src_done = bool(src) and src["status"] == "done" and src["content_sha256"] == journal.get("source_sha256")
         checks.append({"check": "source_done", "pass": src_done})
         ok = ok and src_done
-        journal_ok = row["status"] == "committed"
+        journal_ok = row["status"] == "committed" and len(journal.get("plan", [])) == len(journal.get("written", []))
         checks.append({"check": "journal_committed", "pass": journal_ok})
         ok = ok and journal_ok
         return {"commit_key": commit_key, "verified": ok, "checks": checks}

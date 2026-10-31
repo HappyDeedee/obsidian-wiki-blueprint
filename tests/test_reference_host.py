@@ -9,6 +9,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "system" / "reference-host"))
@@ -37,6 +38,7 @@ class ReferenceHostTest(unittest.TestCase):
         self.vault = self.tmp / "vault"
 
     def tearDown(self):
+        self.host.db.close()
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def _register(self, source_id="src-001", text=SOURCE_TEXT,
@@ -202,6 +204,7 @@ class ReferenceHostTest(unittest.TestCase):
         tok = self.host.writer_acquire("curator-1", "demo")["token"]
         self.host.prepare(tok, "src-001")
         self._full_read(self.host, tok, "src-001")
+        self.host.stage(tok)
         proposal = {"source_id": "src-001", "operation": "new",
                     "quotes": [{"path": rel, "text": "第二段包含关键数字 5000 元。"}],
                     "updates": [{"path": "20-Wiki/实体/新主题.md",
@@ -213,6 +216,114 @@ class ReferenceHostTest(unittest.TestCase):
             "# 被篡改\n", encoding="utf-8")
         v = self.host.verify(res["commit_key"])
         self.assertFalse(v["verified"])
+
+    def _proposal(self):
+        _, rel = self._register()
+        token = self.host.writer_acquire("curator-1")["token"]
+        self.host.prepare(token, "src-001")
+        self._full_read(self.host, token, "src-001")
+        self.host.stage(token)
+        return token, {"source_id": "src-001", "quotes": [{"path": rel, "text": "关键数字 5000 元"}],
+                       "updates": [{"path": "20-Wiki/实体/新主题.md", "mode": "create", "content": "# 新主题\n"}]}
+
+    def test_register_same_version_does_not_requeue_done_source(self):
+        token, proposal = self._proposal()
+        self.host.commit(token, proposal)
+        result = self._register()[0]
+        self.assertTrue(result["reused"])
+        self.assertEqual(result["status"], "done")
+        self.assertEqual(self.host.pending(), [])
+
+    def test_generated_material_and_empty_source_are_rejected(self):
+        for paths in ([], ["20-Wiki/别名表.md"], ["99-System/知识库规则.md"]):
+            with self.subTest(paths=paths), self.assertRaises(HostError):
+                self.host.source_register("bad", "note", paths)
+
+    def test_rule_change_and_source_mix_rejected(self):
+        token, proposal = self._proposal()
+        with self.assertRaises(HostError):
+            self.host.source_read(token, "another-source")
+        rules = self.vault / "99-System/知识库规则.md"
+        rules.write_text("rule_version: changed\n", encoding="utf-8")
+        with self.assertRaises(HostError):
+            self.host.commit(token, proposal)
+        self.assertFalse((self.vault / proposal["updates"][0]["path"]).exists())
+
+    def test_commit_requires_explicit_stage_and_complete_source(self):
+        self._register()
+        token = self.host.writer_acquire("curator-1")["token"]
+        self.host.prepare(token, "src-001")
+        self.host.source_read(token, "src-001", limit=5)
+        with self.assertRaises(HostError):
+            self.host.commit(token, {"source_id": "src-001", "updates": []})
+        self.host.stage(token)
+        with self.assertRaises(HostError):
+            self.host.commit(token, {"source_id": "src-001", "updates": []})
+
+    def test_cannot_write_rules_originals_or_undeclared_old_pages(self):
+        token, proposal = self._proposal()
+        for target in ("99-System/知识库规则.md", "00-Inbox/随手放/note.md", "20-Wiki/别名表.md"):
+            with self.subTest(target=target), self.assertRaises(HostError):
+                self.host.commit(token, {**proposal, "updates": [{"path": target, "mode": "update", "content": "bad"}]})
+        target = "20-Wiki/实体/旧页.md"
+        (self.vault / target).write_text("old", encoding="utf-8")
+        with self.assertRaises(HostError):
+            self.host.commit(token, {**proposal, "updates": [{"path": target, "mode": "update", "content": "bad"}]})
+
+    def test_quote_must_match_its_own_path(self):
+        token, proposal = self._proposal()
+        proposal["quotes"][0]["path"] = "00-Inbox/other.md"
+        with self.assertRaises(HostError):
+            self.host.commit(token, proposal)
+
+    def test_multifile_source_quotes_and_plus_in_filename(self):
+        paths = ["00-Inbox/随手放/a+b.md", "00-Inbox/随手放/c.md"]
+        for path, body in zip(paths, ["第一份", "第二份"]):
+            (self.vault / path).write_text(body, encoding="utf-8")
+        self.host.source_register("multi", "note", paths)
+        token = self.host.writer_acquire("curator-1")["token"]
+        self.host.prepare(token, "multi")
+        self._full_read(self.host, token, "multi")
+        self.host.stage(token)
+        result = self.host.commit(token, {"source_id": "multi", "quotes": [{"path": paths[1], "text": "第二份"}], "updates": []})
+        self.assertTrue(self.host.verify(result["commit_key"])["verified"])
+
+    def test_partial_write_recovers_after_reopening_same_state(self):
+        token, proposal = self._proposal()
+        proposal["updates"].append({"path": "20-Wiki/实体/第二页.md", "mode": "create", "content": "# 第二页\n"})
+        import os
+        real_link = os.link
+        calls = []
+        def fail_second(src, dst):
+            calls.append(str(dst))
+            if len(calls) == 2:
+                raise OSError("injected second write failure")
+            return real_link(src, dst)
+        with patch("curation_host.os.link", side_effect=fail_second), self.assertRaises(OSError):
+            self.host.commit(token, proposal)
+        key = self.host.db.execute("SELECT commit_key FROM commits").fetchone()[0]
+        self.assertFalse(self.host.verify(key)["verified"])
+        self.host.db.close()
+        self.host = CurationHost(self.vault, self.tmp / "state")
+        result = self.host.commit(token, proposal)
+        self.assertEqual(result["commit_key"], key)
+        self.assertTrue(result["recovered"])
+        self.assertTrue(self.host.verify(key)["verified"])
+
+    def test_simultaneous_connections_only_grant_one_lease(self):
+        import concurrent.futures
+        import threading
+        gate = threading.Barrier(2)
+        def acquire(owner):
+            host = CurationHost(self.vault, self.tmp / "state")
+            try:
+                gate.wait()
+                return host.writer_acquire(owner)["status"]
+            finally:
+                host.db.close()
+        with concurrent.futures.ThreadPoolExecutor(2) as pool:
+            results = list(pool.map(acquire, ["one", "two"]))
+        self.assertCountEqual(results, ["ACQUIRED", "BUSY"])
 
     def test_path_traversal_rejected(self):
         with self.assertRaises(HostError):

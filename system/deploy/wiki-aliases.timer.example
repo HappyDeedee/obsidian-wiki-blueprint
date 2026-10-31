@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Wiki aliases checkpoint/publication
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+Unit=wiki-aliases.service
+
+[Install]
+WantedBy=timers.target

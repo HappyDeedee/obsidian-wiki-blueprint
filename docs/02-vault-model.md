@@ -54,7 +54,7 @@
 ## 别名、术语、人物、项目
 
 - aliases 正本在主题页 frontmatter 的 `aliases` 列表；`20-Wiki/别名表.md` 是派生视图，由程序生成，任何人不手工维护。查询 Skill 先读别名表定位同义说法，再按分层检索。
-- 别名表生成程序：`system/production-reference/maintenance/aliases-refresh.py`（全量重建）、`aliases-incremental.py`（增量、串行、有检查点；索引不完整时保留旧视图，从不发布不完整视图）。启用与调度见 [运维手册](../system/runbooks/08-operations.md) 的"程序化维护任务"节。
+- 别名表生成程序：`tools/maintenance.py --config PRIVATE_CONFIG aliases-full`（全量校验，带 `--publish` 才发布）、`aliases-incremental`（增量、有检查点，同样需显式发布）。生产参考 `aliases-refresh.py` 只是每批 40 项的增量包装器；`aliases-incremental.py` 是库函数，直接执行它不会刷新。两者均不能被当作现成全量安装入口。启用与调度见 [运维手册](../system/runbooks/08-operations.md) 的"程序化维护任务"节。
 - 疑似同物只登记，不凭名称相近自动合并。明确错写只在派生知识中纠正并保留原话；多页同名仍核正文、范围和来源。
 - 术语表由指定维护身份在核实用户原话后更新，版本递增；外部通用定义与私人用法分开。
 - 概念建页须可独立定义、有独立关系、有实质内容；不是每个标题或提及都建概念。
