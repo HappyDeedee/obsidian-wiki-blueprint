@@ -1,17 +1,63 @@
+## 模型一半：定时整理任务
+
+上一节的维护任务是不调用模型的确定性动作。24 小时整理 Worker 的另一半是一个**定时被唤醒的 Agent**：每次唤醒按 ingest Skill 把待处理来源变成知识提案，再调宿主落盘。理解、判断、写提案是模型在干；租约、journal、写入、回读是宿主在干。两者不互相冒充。
+
+### 平台选型
+
+选一个能**定时唤醒 Agent、注入 Skill 上下文、保管凭证、设费用上限**的平台。作者自用 Rockdo；同类选择如 OpenClaw、爱马仕等 Agent 平台均可，关键看四条：
+
+1. 定时任务能按 cron 表达式或间隔触发，触发时带上 ingest Skill 全文（或等价指令）。
+2. 模型的 API Key / 平台凭证由平台保管，不写进仓库、不进提示词。
+3. 有每轮费用上限、失败告警、手动暂停；自动恢复默认关闭。
+4. 任务日志独立可查，能看到每次唤醒的实际输出。
+
+### 三种调度做法
+
+**A. 平台内置定时任务（推荐）**：在平台的定时任务/计划任务里新建任务，粘贴下一节的提示词模板，设置频率。平台负责唤醒、注入上下文、记日志。
+
+**B. cron + 可唤醒 Agent 的 CLI**：适合有服务器、Agent 可用命令行调用的场景。cron 只负责"到点喊一声"，实际干活的还是 Agent：
 
 ```text
-python tools/maintenance.py --config PRIVATE_CONFIG aliases-full
-python tools/maintenance.py --config PRIVATE_CONFIG aliases-full --publish
-python tools/maintenance.py --config PRIVATE_CONFIG aliases-incremental --publish
+# 每小时 05 分唤醒整理任务（示例，按自己平台的 CLI 改写）
+5 * * * * /usr/local/bin/agent-run --task wiki-ingest --prompt-file /etc/wiki/ingest-prompt.md >> /var/log/wiki-ingest.log 2>&1
 ```
 
-4. 发布后读回 `20-Wiki/别名表.md`，确认别名链接对应主题页，原页和来源未修改；重复运行应 `changed:false`。`READY` 是未发布的校验结果；`CHECKPOINT`、`BUSY` 的退出码为 2，不算发布成功；`FAIL` 为 1。增量检查点可在下一轮继续，但高频修改或候选超过索引上限可能一直不能收尾；此时保持旧视图、停任务检查，不能把重试次数算成功。
-5. 手动 PASS 后再选择一种调度源。同一库只选一个，避免重复执行。Linux 示例见 `system/deploy/wiki-aliases.service.example` 和 `.timer.example`：将文件安装为 `wiki-aliases.service/timer`；预先创建专用用户 `wiki-maintenance`，授予代码只读及私有配置读取、state_dir 写入权限；在 `/etc/wiki/maintenance.env` 填 `WIKI_CHECKOUT`（绝对仓库路径）和 `WIKI_CONFIG`（私有配置路径）。确认 `/usr/bin/python3` 已安装上述依赖后执行 `sudo systemctl daemon-reload`、`sudo systemctl start wiki-aliases.service`，查日志确认实际 JSON，再执行 `sudo systemctl enable --now wiki-aliases.timer`。`systemctl is-active` 不代替发布回执；示例不是自动安装器。
+**C. systemd timer**：写法参考上一节的 `wiki-aliases.service.example` / `.timer.example`，把 ExecStart 换成唤醒 Agent 的命令。同一库只选一种调度源，避免重复执行。
 
-Windows/macOS 仅在本地 L0 演示中运行 CLI；本节的 Linux 定时器不适用于它们。各任务需登记执行者、权限、费用上限、暂停条件和实际回读方式；本别名程序不调用模型。其他 Agent 任务见 [调度和控制器](07-growth.md)。
+### 定时任务提示词（可直接复制）
 
-失败不静默跳过。索引不完整、源变化或 YAML 错误时不发布，保留旧视图；写入失败需核对回读与 `state_dir/generated-view-backups`，不能无条件覆盖恢复。进程被终止后可能留下 `state_dir/aliases.lock`，确认没有运行进程后再手动移除。原件、队列和同步数据不得清空；自动恢复默认关闭。
+```text
+你是目标知识库的整理 Worker。本轮只做一件事：把待处理来源变成知识或待确认，全部写入走确定性宿主。
 
-## 能报告到哪一级
+先决条件：
+1. 先读目标库 99-System/知识库规则.md；已读且未变化不重复读。
+2. 按 ingest Skill（随本任务注入）执行；本轮只用整理身份，没有整理授权就结束，不降级写。
 
-本地测试通过、服务器服务健康、容器集成通过、真实模型语义通过、电脑/真手机同步通过分别记录。没有拿到手机端证据，就写“手机待验收”。当前仓库真实测试和已知未实现项统一见 `release/verification.md`，不能从文档中推断它们已经实现。
+本轮步骤：
+1. 调宿主 pending 取待处理来源；没有就写一条空跑记录，结束。
+2. writer_acquire(owner=本任务名)。返回 BUSY → 结束本轮，不等待、不换身份重做。
+3. 优先级：确认答复 > 会议 > 日记 > 其他。答复不计入普通资料数量上限。
+4. prepare 后从 offset=0 连续读完来源全文；没读齐不做任何判断。
+5. 逐项判定 create / update / covered / none，每项附原文逐字短引文；无可提炼内容判 no_knowledge 并说明原因，不空写。
+6. commit → verify。verify 通过才算本轮成功。
+7. writer_release。写本轮报告：来源、判定、commit_key、verify 结果、未读范围。
+
+铁律：
+- 不直接写知识文件，一切写入走宿主；宿主返回的错误按 ingest Skill 的失败恢复处理。
+- 不调用联网搜索；需外部核对的标"需外部"留给巡检，不把外部候选写入正式知识。
+- 失败写失败记录，不静默跳过；"尝试过""读过"不算成功。
+```
+
+把模板存到仓库外的私有位置（如 `/etc/wiki/ingest-prompt.md`），按自己库的目录名替换"目标库"相关路径。不要把提示词里的身份、路径或凭证提交 Git。
+
+### 频率与预算建议
+
+| 任务 | 建议频率 | 说明 |
+|---|---|---|
+| 普通增量整理 | 每小时 | 每轮限量（如 3 份来源）；确认答复优先且不限量 |
+| 每日结构巡检 | 每天 | 调 health Skill 结构部分；交叉核对真实入库数 |
+| 每周内容巡检 | 每周 | 调 health Skill 内容/时效部分；在预算内分批 |
+| 别名/派生视图刷新 | 见上一节 | 确定性任务，走上一节的入口 |
+
+每轮设最大来源数和费用上限；当天有未整理来源而真实入库数为 0，报每日入库故障（见 health Skill），不写成"任务完成"。
+
